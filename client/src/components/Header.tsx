@@ -7,7 +7,7 @@ import {
   SheetTrigger 
 } from "@/components/ui/sheet";
 import { Menu, Search, X } from "lucide-react";
-import iaimLogo from '@/assets/iaim-logo.png';
+import iaimLogo from '@/assets/iaim-bolder.png';
 
 export default function Header() {
   const [location] = useLocation();

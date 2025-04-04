@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { FaGithub, FaTwitter, FaLinkedin } from "react-icons/fa";
 import { SiHuggingface } from "react-icons/si";
-import iaimLogo from '@/assets/iaim-logo.png';
+import iaimLogo from '@/assets/iaim-bolder.png';
 
 export default function Footer() {
   return (
