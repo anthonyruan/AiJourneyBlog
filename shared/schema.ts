@@ -37,15 +37,6 @@ export const posts = pgTable("posts", {
 
 export const insertPostSchema = createInsertSchema(posts).omit({
   id: true
-}).transform((data) => {
-  // 确保 publishedAt 字段是日期类型，如果它是 ISO 字符串，转换它
-  if (typeof data.publishedAt === 'string') {
-    return {
-      ...data,
-      publishedAt: new Date(data.publishedAt)
-    };
-  }
-  return data;
 });
 
 // Projects schema

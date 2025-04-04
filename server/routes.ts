@@ -39,7 +39,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   apiRouter.post("/posts", async (req: Request, res: Response) => {
     try {
-      const validatedData = insertPostSchema.parse(req.body);
+      // 手动处理publishedAt字段的日期转换
+      const { publishedAt, ...rest } = req.body;
+      
+      // 确保publishedAt是Date对象
+      const parsedDate = publishedAt ? new Date(publishedAt) : new Date();
+      
+      // 使用已处理的日期创建新的请求数据
+      const processedData = {
+        ...rest,
+        publishedAt: parsedDate
+      };
+      
+      const validatedData = insertPostSchema.parse(processedData);
       const post = await storage.createPost(validatedData);
       res.status(201).json(post);
     } catch (error) {
@@ -49,6 +61,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           errors: fromZodError(error).message 
         });
       }
+      console.error("Post creation error:", error);
       res.status(500).json({ message: "Failed to create post" });
     }
   });
@@ -56,6 +69,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.put("/posts/:id", async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
+      
+      // 手动处理publishedAt字段的日期转换
+      const { publishedAt, ...rest } = req.body;
+      
+      // 如果有publishedAt字段，确保它是Date对象
+      const processedData = {
+        ...rest,
+        ...(publishedAt ? { publishedAt: new Date(publishedAt) } : {})
+      };
+      
       // 由于使用了transform后，不能直接使用partial
       const validatedData = z.object({
         title: z.string().optional(),
@@ -66,7 +89,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         publishedAt: z.date().optional(),
         authorId: z.number().optional(),
         tags: z.array(z.string()).optional(),
-      }).parse(req.body);
+      }).parse(processedData);
+      
       const post = await storage.updatePost(id, validatedData);
       if (!post) {
         return res.status(404).json({ message: "Post not found" });
@@ -79,6 +103,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           errors: fromZodError(error).message 
         });
       }
+      console.error("Post update error:", error);
       res.status(500).json({ message: "Failed to update post" });
     }
   });
