@@ -10,7 +10,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-2">
             <div className="flex items-center space-x-3 mb-4">
-              <img src={iaimLogo} alt="I'm AI Man logo" className="h-14 w-auto invert" />
+              <img src={iaimLogo} alt="I'm AI Man logo" className="h-20 w-auto invert" />
               <h2 className="text-xl font-bold font-heading">I'm AI Man</h2>
             </div>
             <p className="text-gray-300 mb-4">
