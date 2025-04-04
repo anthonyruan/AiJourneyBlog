@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { FaGithub, FaTwitter, FaLinkedin } from "react-icons/fa";
 import { SiHuggingface } from "react-icons/si";
+import iaimLogo from '@/assets/iaim-logo.png';
 
 export default function Footer() {
   return (
@@ -8,7 +9,10 @@ export default function Footer() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-2">
-            <h2 className="text-lg font-bold mb-4 font-heading">I'm AI Man</h2>
+            <div className="flex items-center space-x-2 mb-4">
+              <img src={iaimLogo} alt="I'm AI Man logo" className="h-7 w-auto invert" />
+              <h2 className="text-lg font-bold font-heading">I'm AI Man</h2>
+            </div>
             <p className="text-gray-300 mb-4">
               Documenting my journey through AI research, experiments, and applications.
             </p>
