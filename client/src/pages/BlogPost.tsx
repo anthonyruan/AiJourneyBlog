@@ -1,0 +1,124 @@
+import { useEffect } from "react";
+import { useParams, useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+import { formatDistanceToNow } from "date-fns";
+import CommentSection from "@/components/CommentSection";
+import NewsletterForm from "@/components/NewsletterForm";
+import HuggingFaceEmbed from "@/components/HuggingFaceEmbed";
+import { Markdown } from "@/components/ui/markdown";
+import { Badge } from "@/components/ui/badge";
+import { Post } from "@shared/schema";
+
+export default function BlogPost() {
+  const params = useParams<{ slug: string }>();
+  const [, setLocation] = useLocation();
+
+  // Get post data
+  const { data: post, isLoading, isError } = useQuery<Post>({
+    queryKey: [`/api/posts/${params.slug}`],
+  });
+
+  useEffect(() => {
+    if (isError) {
+      setLocation("/not-found");
+    }
+  }, [isError, setLocation]);
+
+  // Check if post includes Hugging Face demo
+  const hasHuggingFaceDemo = post?.content?.includes('Hugging Face Spaces');
+
+  return (
+    <>
+      {isLoading ? (
+        <div className="py-12 container mx-auto px-4 max-w-3xl">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-3/4 mb-4"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/4 mb-6"></div>
+            <div className="h-64 bg-gray-200 rounded mb-6"></div>
+            <div className="space-y-3">
+              <div className="h-4 bg-gray-200 rounded w-full"></div>
+              <div className="h-4 bg-gray-200 rounded w-full"></div>
+              <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+            </div>
+          </div>
+        </div>
+      ) : post ? (
+        <>
+          <article className="py-12 bg-white">
+            <div className="container mx-auto px-4 max-w-3xl">
+              {/* Post Header */}
+              <header className="mb-8">
+                <h1 className="text-4xl font-bold font-heading text-gray-900 mb-4">
+                  {post.title}
+                </h1>
+                
+                <div className="flex flex-wrap items-center text-gray-600 mb-6">
+                  <span className="mr-4">
+                    {formatDistanceToNow(new Date(post.publishedAt), { addSuffix: true })}
+                  </span>
+                  <span className="mr-4">•</span>
+                  <span>5 min read</span>
+                </div>
+                
+                {post.tags && post.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    {post.tags.map((tag, index) => (
+                      <Badge key={index} variant="secondary" className="bg-blue-100 text-blue-800 hover:bg-blue-200">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+                
+                {post.coverImage && (
+                  <img
+                    src={post.coverImage}
+                    alt={post.title}
+                    className="w-full h-auto rounded-lg mb-8 shadow-md"
+                  />
+                )}
+              </header>
+              
+              {/* Post Content */}
+              <div className="prose prose-blue max-w-none">
+                <Markdown content={post.content} />
+                
+                {/* Insert Hugging Face Embed if needed */}
+                {hasHuggingFaceDemo && (
+                  <div className="my-8">
+                    <HuggingFaceEmbed
+                      title="Story Generator Demo"
+                      modelUrl="https://huggingface.co/spaces/demo/text-generation"
+                      placeholderText="Enter a story prompt..."
+                    />
+                  </div>
+                )}
+              </div>
+              
+              {/* Author Info */}
+              <div className="mt-12 pt-8 border-t border-gray-200">
+                <div className="flex items-center">
+                  <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 mr-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900">Admin User</p>
+                    <p className="text-sm text-gray-600">AI Researcher & Developer</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+          
+          {/* Comments Section */}
+          <CommentSection postId={post.id} />
+          
+          {/* Newsletter */}
+          <NewsletterForm />
+        </>
+      ) : null}
+    </>
+  );
+}
