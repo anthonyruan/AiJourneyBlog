@@ -47,17 +47,11 @@ export default function Header() {
                   <Link href="/" onClick={() => setMobileMenuOpen(false)} className="block text-base font-medium text-gray-700 hover:text-primary-600">
                     Home
                   </Link>
-                  <Link href="/#blog" onClick={() => setMobileMenuOpen(false)} className="block text-base font-medium text-gray-700 hover:text-primary-600">
-                    Blog
-                  </Link>
                   <Link href="/projects" onClick={() => setMobileMenuOpen(false)} className="block text-base font-medium text-gray-700 hover:text-primary-600">
                     AI Projects
                   </Link>
                   <Link href="/about" onClick={() => setMobileMenuOpen(false)} className="block text-base font-medium text-gray-700 hover:text-primary-600">
                     About
-                  </Link>
-                  <Link href="/contact" onClick={() => setMobileMenuOpen(false)} className="block text-base font-medium text-gray-700 hover:text-primary-600">
-                    Contact
                   </Link>
                 </div>
                 <div className="mt-6">
@@ -73,10 +67,8 @@ export default function Header() {
           {/* Desktop menu */}
           <nav className="hidden md:flex space-x-8">
             <Link href="/" className={`font-medium ${isActive("/")}`}>Home</Link>
-            <Link href="/#blog" className="font-medium text-gray-700 hover:text-primary-600">Blog</Link>
             <Link href="/projects" className={`font-medium ${isActive("/projects")}`}>AI Projects</Link>
             <Link href="/about" className={`font-medium ${isActive("/about")}`}>About</Link>
-            <Link href="/contact" className={`font-medium ${isActive("/contact")}`}>Contact</Link>
           </nav>
           
           <div className="hidden md:flex items-center justify-end md:flex-1 lg:w-0">
