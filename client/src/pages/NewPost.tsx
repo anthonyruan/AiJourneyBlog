@@ -34,9 +34,9 @@ const slugify = (text: string) => {
 };
 
 const postSchema = z.object({
-  title: z.string().min(5, "Title must be at least 5 characters"),
-  excerpt: z.string().min(10, "Excerpt must be at least 10 characters"),
-  content: z.string().min(50, "Content must be at least 50 characters"),
+  title: z.string().min(1, "Title is required"),
+  excerpt: z.string(),
+  content: z.string(),
   coverImage: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
   tags: z.string().optional().transform(val => 
     val ? val.split(',').map(tag => tag.trim()) : []
