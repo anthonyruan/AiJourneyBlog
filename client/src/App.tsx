@@ -20,7 +20,7 @@ function Router() {
         <Route path="/projects" component={Projects} />
         <Route path="/about" component={About} />
         <Route path="/contact" component={Contact} />
-        <Route path="/admin/new-post" component={NewPost} />
+        <Route path="/new-post" component={NewPost} />
         <Route component={NotFound} />
       </Switch>
     </Layout>
