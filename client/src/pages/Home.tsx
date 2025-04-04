@@ -80,15 +80,16 @@ export default function Home() {
           </div>
 
           {/* Timeline Component */}
-          <div className="mt-12 max-w-3xl mx-auto">
+          <div className="mt-12 max-w-4xl mx-auto">
             {isLoadingPosts ? (
               <p className="text-center text-gray-500">Loading posts...</p>
             ) : posts.length > 0 ? (
-              posts.slice(0, 3).map(post => (
+              posts.slice(0, 3).map((post, index) => (
                 <TimelinePost 
                   key={post.id} 
                   post={post} 
                   commentsCount={3} // In a real app, get actual count from DB
+                  index={index} // 传入索引，决定左右布局
                 />
               ))
             ) : (
