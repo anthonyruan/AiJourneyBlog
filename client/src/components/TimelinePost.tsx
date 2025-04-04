@@ -13,21 +13,21 @@ export default function TimelinePost({ post, commentsCount = 0 }: TimelinePostPr
   const formattedDate = formatDistanceToNow(new Date(post.publishedAt), { addSuffix: true });
   
   return (
-    <div className="mb-16 relative">
-      {/* Timeline line */}
-      <div className="absolute left-0 top-0 bottom-0 w-px bg-gray-200 ml-4 md:ml-5 -mt-6 h-full"></div>
+    <div className="mb-16 relative max-w-3xl mx-auto flex">
+      {/* Timeline line - now centered */}
+      <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gray-200 transform -translate-x-1/2 -mt-6 h-full"></div>
       
-      {/* Timeline dot */}
-      <div className="absolute left-0 bg-primary-500 rounded-full w-9 h-9 z-10 flex items-center justify-center shadow-md">
+      {/* Timeline dot - now centered */}
+      <div className="absolute left-1/2 bg-primary-500 rounded-full w-10 h-10 z-10 flex items-center justify-center shadow-md transform -translate-x-1/2">
         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
           <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
         </svg>
       </div>
       
       {/* Content card */}
-      <div className="ml-16 md:ml-20">
-        <div className="text-sm text-gray-500 mb-1">{formattedDate}</div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300">
+      <div className="w-full">
+        <div className="text-sm text-gray-500 mb-1 text-center">{formattedDate}</div>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300 mt-6">
           {post.coverImage && (
             <img 
               src={post.coverImage} 
