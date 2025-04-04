@@ -8,7 +8,7 @@ export default function Footer() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-2">
-            <h2 className="text-lg font-bold mb-4 font-heading">AI Research Blog</h2>
+            <h2 className="text-lg font-bold mb-4 font-heading">I'm AI Man</h2>
             <p className="text-gray-300 mb-4">
               Documenting my journey through AI research, experiments, and applications.
             </p>
@@ -36,10 +36,8 @@ export default function Footer() {
             <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Navigation</h3>
             <ul className="space-y-2">
               <li><Link href="/" className="text-gray-300 hover:text-white">Home</Link></li>
-              <li><Link href="/#blog" className="text-gray-300 hover:text-white">Blog</Link></li>
-              <li><Link href="/projects" className="text-gray-300 hover:text-white">Projects</Link></li>
+              <li><Link href="/projects" className="text-gray-300 hover:text-white">AI Projects</Link></li>
               <li><Link href="/about" className="text-gray-300 hover:text-white">About</Link></li>
-              <li><Link href="/contact" className="text-gray-300 hover:text-white">Contact</Link></li>
             </ul>
           </div>
           
@@ -55,7 +53,7 @@ export default function Footer() {
         </div>
         
         <div className="border-t border-gray-700 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-400">&copy; {new Date().getFullYear()} AI Research Blog. All rights reserved.</p>
+          <p className="text-gray-400">&copy; {new Date().getFullYear()} I'm AI Man. All rights reserved.</p>
           <div className="mt-4 md:mt-0 flex space-x-6">
             <a href="#" className="text-gray-400 hover:text-white">Privacy Policy</a>
             <a href="#" className="text-gray-400 hover:text-white">Terms of Service</a>
