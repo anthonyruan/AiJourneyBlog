@@ -43,7 +43,10 @@ const postSchema = z.object({
   ),
 });
 
-type PostFormValues = z.infer<typeof postSchema>;
+// 使用原始的schema类型，但为了解决TypeScript的错误，我们手动定义tags的类型
+type PostFormValues = Omit<z.infer<typeof postSchema>, 'tags'> & {
+  tags: string | string[];
+};
 
 export default function NewPost() {
   const { toast } = useToast();
@@ -57,7 +60,7 @@ export default function NewPost() {
       excerpt: "",
       content: "",
       coverImage: "",
-      tags: "",
+      tags: [],
     },
   });
 
@@ -90,6 +93,7 @@ export default function NewPost() {
   });
 
   const onSubmit = (data: PostFormValues) => {
+    // tags已经由schema转换为字符串数组
     const slug = slugify(data.title);
     postMutation.mutate({ ...data, slug });
   };
@@ -157,18 +161,27 @@ export default function NewPost() {
                 <FormField
                   control={form.control}
                   name="tags"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tags (comma separated)</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="AI, Machine Learning, NLP" 
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  render={({ field }) => {
+                    // 特殊处理，如果field.value是数组，则转换为逗号分隔的字符串
+                    const value = Array.isArray(field.value) ? field.value.join(', ') : field.value;
+                    return (
+                      <FormItem>
+                        <FormLabel>Tags (comma separated)</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="AI, Machine Learning, NLP" 
+                            {...field}
+                            value={value}
+                            onChange={(e) => {
+                              // 当用户输入时，只更新字段的字符串值
+                              field.onChange(e.target.value);
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
                 />
 
                 <Tabs value={tab} onValueChange={setTab} className="w-full">

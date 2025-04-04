@@ -56,7 +56,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.put("/posts/:id", async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
-      const validatedData = insertPostSchema.partial().parse(req.body);
+      // 由于使用了transform后，不能直接使用partial
+      const validatedData = z.object({
+        title: z.string().optional(),
+        slug: z.string().optional(),
+        content: z.string().optional(),
+        excerpt: z.string().optional(),
+        coverImage: z.string().optional(),
+        publishedAt: z.date().optional(),
+        authorId: z.number().optional(),
+        tags: z.array(z.string()).optional(),
+      }).parse(req.body);
       const post = await storage.updatePost(id, validatedData);
       if (!post) {
         return res.status(404).json({ message: "Post not found" });
@@ -137,7 +147,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.put("/projects/:id", async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
-      const validatedData = insertProjectSchema.partial().parse(req.body);
+      // 由于schema限制，需要手动创建一个可选字段的schema
+      const validatedData = z.object({
+        title: z.string().optional(),
+        description: z.string().optional(),
+        imageUrl: z.string().optional(),
+        huggingFaceUrl: z.string().optional(),
+        tags: z.array(z.string()).optional(),
+        isActive: z.number().optional(),
+      }).parse(req.body);
       const project = await storage.updateProject(id, validatedData);
       if (!project) {
         return res.status(404).json({ message: "Project not found" });
