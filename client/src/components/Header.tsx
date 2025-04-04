@@ -59,6 +59,9 @@ export default function Header() {
                   <Link href="/contact" onClick={() => setMobileMenuOpen(false)} className="block text-base font-medium text-gray-700 hover:text-primary-600">
                     Contact
                   </Link>
+                  <Link href="/new-post" onClick={() => setMobileMenuOpen(false)} className="block text-base font-medium text-primary-600 hover:text-primary-700">
+                    发布新文章
+                  </Link>
                 </div>
                 <div className="mt-6">
                   <Link href="#" className="flex items-center text-gray-700 hover:text-primary-600">
@@ -79,11 +82,14 @@ export default function Header() {
             <Link href="/contact" className={`font-medium ${isActive("/contact")}`}>Contact</Link>
           </nav>
           
-          <div className="hidden md:flex items-center justify-end md:flex-1 lg:w-0">
+          <div className="hidden md:flex items-center justify-end md:flex-1 lg:w-0 space-x-4">
             <Link href="#" className="flex items-center text-gray-700 hover:text-primary-600">
               <Search className="h-4 w-4 mr-1" />
               <span>Search</span>
             </Link>
+            <Button asChild variant="default" className="px-4 py-2">
+              <Link href="/new-post">发布新文章</Link>
+            </Button>
           </div>
         </div>
       </div>
