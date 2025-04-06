@@ -57,11 +57,7 @@ export default function Header() {
                   <Link href="/about" onClick={() => setMobileMenuOpen(false)} className="block text-base font-medium text-gray-700 hover:text-primary-600">
                     About
                   </Link>
-                  {isAdmin && (
-                    <Link href="/new-post" onClick={() => setMobileMenuOpen(false)} className="block text-base font-medium text-green-600 hover:text-green-700">
-                      New Post
-                    </Link>
-                  )}
+                  {/* 移除了New Post链接，避免与主页内容重复 */}
                 </div>
                 <div className="mt-6 space-y-4">
                   <Link href="#" className="flex items-center text-gray-700 hover:text-primary-600">
@@ -101,9 +97,7 @@ export default function Header() {
 
             {isAdmin && (
               <>
-                <Link href="/new-post" className="flex items-center text-green-600 hover:text-green-700">
-                  <span className="text-sm font-medium">New Post</span>
-                </Link>
+                {/* 移除了New Post链接，避免与主页内容重复 */}
                 <Button 
                   variant="ghost" 
                   size="sm" 

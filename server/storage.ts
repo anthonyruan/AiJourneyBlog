@@ -7,7 +7,11 @@ import {
   subscribers, type Subscriber, type InsertSubscriber
 } from "@shared/schema";
 
+import { eq, desc } from "drizzle-orm";
+import { db } from "./db";
 import session from "express-session";
+import connectPg from "connect-pg-simple";
+import createMemoryStore from "memorystore";
 
 export interface IStorage {
   sessionStore: session.Store;
@@ -48,12 +52,7 @@ export interface IStorage {
   deleteSubscriber(id: number): Promise<boolean>;
 }
 
-import createMemoryStore from "memorystore";
-import connectPg from "connect-pg-simple";
-import { db } from './db';
-import { eq, desc } from 'drizzle-orm';
-import postgres from 'postgres';
-
+// Create memory store for in-memory session storage
 const MemoryStore = createMemoryStore(session);
 
 // MemStorage implementation for memory storage
@@ -295,14 +294,11 @@ export class DatabaseStorage implements IStorage {
     // PostgreSQL session store setup
     const PostgresSessionStore = connectPg(session);
     
-    // Create a PostgreSQL pool for the session store
-    const sessionPool = postgres(process.env.DATABASE_URL!, { 
-      max: 5
-    });
-    
     // Create session store with PostgreSQL
     this.sessionStore = new PostgresSessionStore({
-      pool: sessionPool,
+      pool: {
+        connectionString: process.env.DATABASE_URL!
+      } as any,
       createTableIfMissing: true
     });
   }
