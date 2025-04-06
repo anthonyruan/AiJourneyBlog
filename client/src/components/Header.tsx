@@ -22,7 +22,7 @@ export default function Header() {
         <div className="flex justify-between items-center py-2 md:justify-start md:space-x-10">
           <div className="flex justify-start lg:w-0 lg:flex-1">
             <Link href="/" className="flex items-center">
-              <span className="font-heading font-bold text-3xl text-primary-600">I'm AI Man</span>
+              <span className="font-heading font-bold text-2xl text-primary-600">I'm AI Man</span>
             </Link>
           </div>
           
@@ -38,7 +38,7 @@ export default function Header() {
               <SheetContent side="right" className="py-6 px-5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
-                    <span className="font-heading font-bold text-2xl text-primary-600">I'm AI Man</span>
+                    <span className="font-heading font-bold text-xl text-primary-600">I'm AI Man</span>
                   </div>
                   <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
                     <X className="h-5 w-5 text-gray-500" />

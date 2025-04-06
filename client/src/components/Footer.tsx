@@ -9,7 +9,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-2">
             <div className="flex items-center mb-4">
-              <h2 className="text-2xl font-bold font-heading">I'm AI Man</h2>
+              <h2 className="text-xl font-bold font-heading">I'm AI Man</h2>
             </div>
             <p className="text-gray-300 mb-4">
               Documenting my journey through AI research, experiments, and applications.
