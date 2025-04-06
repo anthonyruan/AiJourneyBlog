@@ -103,7 +103,15 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.userCurrentId++;
-    const user: User = { ...insertUser, id };
+    // 确保所有必要的字段都有值，防止类型错误
+    const user: User = { 
+      ...insertUser, 
+      id,
+      displayName: insertUser.displayName ?? null,
+      bio: insertUser.bio ?? null,
+      avatarUrl: insertUser.avatarUrl ?? null,
+      email: insertUser.email ?? null
+    };
     this.users.set(id, user);
     return user;
   }
@@ -127,7 +135,17 @@ export class MemStorage implements IStorage {
 
   async createPost(insertPost: InsertPost): Promise<Post> {
     const id = this.postCurrentId++;
-    const post: Post = { ...insertPost, id };
+    // 确保所有必要的字段都有值，防止类型错误
+    const post: Post = { 
+      ...insertPost, 
+      id,
+      excerpt: insertPost.excerpt ?? null,
+      coverImage: insertPost.coverImage ?? null,
+      tags: insertPost.tags ?? null,
+      huggingFaceModelTitle: insertPost.huggingFaceModelTitle ?? null,
+      huggingFaceModelUrl: insertPost.huggingFaceModelUrl ?? null,
+      huggingFacePlaceholder: insertPost.huggingFacePlaceholder ?? null
+    };
     this.posts.set(id, post);
     return post;
   }
@@ -164,7 +182,15 @@ export class MemStorage implements IStorage {
 
   async createProject(insertProject: InsertProject): Promise<Project> {
     const id = this.projectCurrentId++;
-    const project: Project = { ...insertProject, id };
+    // 确保所有必要的字段都有值，防止类型错误
+    const project: Project = { 
+      ...insertProject, 
+      id,
+      tags: insertProject.tags ?? null,
+      imageUrl: insertProject.imageUrl ?? null,
+      huggingFaceUrl: insertProject.huggingFaceUrl ?? null,
+      isActive: insertProject.isActive ?? 0
+    };
     this.projects.set(id, project);
     return project;
   }
@@ -193,7 +219,12 @@ export class MemStorage implements IStorage {
 
   async createComment(insertComment: InsertComment): Promise<Comment> {
     const id = this.commentCurrentId++;
-    const comment: Comment = { ...insertComment, id };
+    // 确保所有必要的字段都有值，防止类型错误
+    const comment: Comment = { 
+      ...insertComment, 
+      id,
+      parentId: insertComment.parentId ?? null
+    };
     this.comments.set(id, comment);
     return comment;
   }
