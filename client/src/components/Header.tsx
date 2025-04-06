@@ -69,7 +69,7 @@ export default function Header() {
                     <span>Search</span>
                   </Link>
                   
-                  {isAdmin ? (
+                  {isAdmin && (
                     <button
                       onClick={() => {
                         logoutMutation.mutate();
@@ -80,15 +80,6 @@ export default function Header() {
                       <LogOut className="h-4 w-4 mr-1" />
                       <span>Logout</span>
                     </button>
-                  ) : (
-                    <Link 
-                      href="/login" 
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center text-gray-700 hover:text-primary-600"
-                    >
-                      <LogIn className="h-4 w-4 mr-1" />
-                      <span>Login</span>
-                    </Link>
                   )}
                 </div>
               </SheetContent>
@@ -108,7 +99,7 @@ export default function Header() {
               <span>Search</span>
             </Link>
 
-            {isAdmin ? (
+            {isAdmin && (
               <>
                 <Link href="/new-post" className="flex items-center text-green-600 hover:text-green-700">
                   <span className="text-sm font-medium">New Post</span>
@@ -123,11 +114,6 @@ export default function Header() {
                   <span>Logout</span>
                 </Button>
               </>
-            ) : (
-              <Link href="/login" className="flex items-center text-gray-700 hover:text-primary-600">
-                <LogIn className="h-4 w-4 mr-1" />
-                <span>Login</span>
-              </Link>
             )}
           </div>
         </div>

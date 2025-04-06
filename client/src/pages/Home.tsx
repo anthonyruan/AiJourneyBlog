@@ -58,9 +58,9 @@ export default function Home() {
               </Button>
             </div>
             
-            {/* Admin or Login links */}
+            {/* Admin links - only shown when logged in */}
             <div className="mt-4">
-              {isAdmin ? (
+              {isAdmin && (
                 <div className="flex justify-center gap-3 flex-wrap">
                   <Link 
                     href="/new-post" 
@@ -81,13 +81,6 @@ export default function Home() {
                     Logout
                   </button>
                 </div>
-              ) : (
-                <Link 
-                  href="/login" 
-                  className="text-sm text-gray-600 hover:text-primary-700 underline"
-                >
-                  Admin Login
-                </Link>
               )}
             </div>
           </div>
