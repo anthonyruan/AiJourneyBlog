@@ -71,18 +71,18 @@ export default function Home() {
             <div className="mt-4">
               {isAdmin ? (
                 <div className="flex justify-center gap-3 flex-wrap">
-                  <AdminLink 
+                  <Link 
                     href="/new-post" 
                     className="text-sm text-primary-700 hover:text-primary-900 underline"
                   >
                     新建博客文章
-                  </AdminLink>
-                  <AdminLink 
+                  </Link>
+                  <Link 
                     href="/new-project" 
                     className="text-sm text-primary-700 hover:text-primary-900 underline"
                   >
                     新建项目
-                  </AdminLink>
+                  </Link>
                   <button 
                     onClick={() => logoutMutation.mutate()}
                     className="text-sm text-red-600 hover:text-red-800 underline"
@@ -91,12 +91,12 @@ export default function Home() {
                   </button>
                 </div>
               ) : (
-                <a 
+                <Link 
                   href="/login" 
                   className="text-sm text-gray-600 hover:text-primary-700 underline"
                 >
                   管理员登录
-                </a>
+                </Link>
               )}
             </div>
           </div>

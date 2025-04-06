@@ -1,11 +1,11 @@
-import { createContext, ReactNode, useContext, useState, useEffect } from "react";
+import { createContext, ReactNode, useContext } from "react";
 import {
   useQuery,
   useMutation,
   UseMutationResult,
 } from "@tanstack/react-query";
 import { insertUserSchema, User } from "@shared/schema";
-import { apiRequest, queryClient } from "../lib/queryClient";
+import { apiRequest, queryClient, getQueryFn } from "../lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 
@@ -31,15 +31,6 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
-  const [isAdmin, setIsAdmin] = useState(false);
-  
-  // In a real application, we would fetch the user from the server
-  // For now, we'll use a simplified approach
-  useEffect(() => {
-    // Check if we have stored admin status in localStorage
-    const storedIsAdmin = localStorage.getItem("isAdmin") === "true";
-    setIsAdmin(storedIsAdmin);
-  }, []);
 
   const {
     data: user,
@@ -47,47 +38,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading,
   } = useQuery<User | null, Error>({
     queryKey: ["/api/user"],
-    queryFn: async () => {
-      // In a real app, this would be a fetch to the server
-      // For now, we'll return null to indicate not logged in
-      return null;
-    },
-    enabled: false, // Disable this query since we're not actually fetching
+    queryFn: getQueryFn({ on401: "returnNull" }),
   });
+
+  // Check if the user is an admin (in our simple case, any logged in user is admin)
+  const isAdmin = !!user;
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {
-      // In a real application, this would call the server
-      // For our demo, we'll just simulate an admin login
-
-      if (credentials.username === "admin" && credentials.password === "admin") {
-        // Store admin status
-        localStorage.setItem("isAdmin", "true");
-        setIsAdmin(true);
-        
-        // Return a mock user that matches the User type
-        return {
-          id: 1,
-          username: "admin",
-          password: "***",
-          displayName: "Administrator",
-          bio: null,
-          avatarUrl: null,
-          email: null,
-        } as User;
+      const res = await apiRequest("POST", "/api/login", credentials);
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || "Login failed");
       }
-      
-      throw new Error("Invalid credentials");
+      return await res.json();
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       toast({
-        title: "Login successful",
-        description: "You are now logged in as admin",
+        title: "登录成功",
+        description: "你现在已经登录为管理员",
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Login failed",
+        title: "登录失败",
         description: error.message,
         variant: "destructive",
       });
@@ -95,14 +70,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   const registerMutation = useMutation({
-    mutationFn: async (credentials: InsertUser) => {
-      // In a real application, this would register a new user
-      // For our demo, we'll just throw an error as registration isn't implemented
-      throw new Error("Registration not implemented in demo");
+    mutationFn: async (userData: InsertUser) => {
+      const res = await apiRequest("POST", "/api/register", userData);
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || "Registration failed");
+      }
+      return await res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      toast({
+        title: "注册成功",
+        description: "你现在已经登录",
+      });
     },
     onError: (error: Error) => {
       toast({
-        title: "Registration failed",
+        title: "注册失败",
         description: error.message,
         variant: "destructive",
       });
@@ -111,20 +96,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      // In a real application, this would call the server
-      // For our demo, we'll just clear the admin status
-      localStorage.removeItem("isAdmin");
-      setIsAdmin(false);
+      const res = await apiRequest("POST", "/api/logout");
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || "Logout failed");
+      }
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       toast({
-        title: "Logout successful",
-        description: "You have been logged out",
+        title: "退出登录成功",
+        description: "你已经退出登录",
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Logout failed",
+        title: "退出登录失败",
         description: error.message,
         variant: "destructive",
       });
@@ -134,7 +121,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider
       value={{
-        user: user ?? null,
+        user,
         isLoading,
         error,
         loginMutation,

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,12 +27,6 @@ export default function LoginPage() {
   const [, navigate] = useLocation();
   const { loginMutation, isAdmin } = useAuth();
   
-  // Redirect if already logged in
-  if (isAdmin) {
-    navigate("/");
-    return null;
-  }
-
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -39,6 +34,13 @@ export default function LoginPage() {
       password: "",
     },
   });
+  
+  // 使用 useEffect 来处理重定向，而不是在渲染期间
+  useEffect(() => {
+    if (isAdmin) {
+      navigate("/");
+    }
+  }, [isAdmin, navigate]);
 
   const onSubmit = (data: LoginFormValues) => {
     loginMutation.mutate(data, {

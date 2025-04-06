@@ -1,6 +1,7 @@
 import express, { type Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { setupAuth } from "./auth";
 import { 
   insertPostSchema,
   insertProjectSchema,
@@ -12,6 +13,9 @@ import { z } from "zod";
 import { fromZodError } from "zod-validation-error";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // 设置认证
+  setupAuth(app);
+  
   // prefix all routes with /api
   const apiRouter = express.Router();
 

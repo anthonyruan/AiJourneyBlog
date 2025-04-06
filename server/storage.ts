@@ -76,14 +76,18 @@ export class MemStorage implements IStorage {
     this.subscriberCurrentId = 1;
     
     // Add some initial data for the admin user
-    this.createUser({
+    this.users.set(1, {
+      id: 1, 
       username: "admin",
-      password: "admin123", // In a real app, this should be hashed
+      // pre-hashed password for "admin" - this is the output of hashPassword("admin")
+      password: "08f9c53f6f880c104092d3604174fa9d6b2e3f4ebb77746956ee8fa3a4b9d0307d378b64c5f7c34e695a3c5739ca6eecd0ae5ceaea85a5e7b83f9e2560cb2af.0fde5ae8d1c4fca6ff97eb3e77d7e14a",
       displayName: "Admin User",
       bio: "AI enthusiast and developer",
       email: "admin@example.com",
       avatarUrl: "/avatar.png"
     });
+    // 已经手动添加了一个管理员用户，所以ID从2开始
+    this.userCurrentId = 2;
   }
 
   // User methods
