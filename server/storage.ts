@@ -80,7 +80,7 @@ export class MemStorage implements IStorage {
       id: 1, 
       username: "admin",
       // pre-hashed password for "admin" - this is the output of hashPassword("admin")
-      password: "08f9c53f6f880c104092d3604174fa9d6b2e3f4ebb77746956ee8fa3a4b9d0307d378b64c5f7c34e695a3c5739ca6eecd0ae5ceaea85a5e7b83f9e2560cb2af.0fde5ae8d1c4fca6ff97eb3e77d7e14a",
+      password: "807d4a58d0c5f92d6f2b36b2091143316dea58656f469b13216ad2e11eb36a4f28afe005c0e66d5f8e0e585c034dd457c5f4cebd3c38cdcd01b292ffc882217b.d4b4266cb1e591ceb8e5674a49a1c27d",
       displayName: "Admin User",
       bio: "AI enthusiast and developer",
       email: "admin@example.com",
