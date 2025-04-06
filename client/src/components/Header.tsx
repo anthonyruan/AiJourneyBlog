@@ -66,16 +66,32 @@ export default function Header() {
                   </Link>
                   
                   {isAdmin && (
-                    <button
-                      onClick={() => {
-                        logoutMutation.mutate();
-                        setMobileMenuOpen(false);
-                      }}
-                      className="flex items-center text-gray-700 hover:text-primary-600"
-                    >
-                      <LogOut className="h-4 w-4 mr-1" />
-                      <span>Logout</span>
-                    </button>
+                    <>
+                      <Link 
+                        href="/new-post" 
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center text-gray-700 hover:text-primary-600"
+                      >
+                        <span>New Post</span>
+                      </Link>
+                      <Link 
+                        href="/new-project" 
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center text-gray-700 hover:text-primary-600"
+                      >
+                        <span>New Project</span>
+                      </Link>
+                      <button
+                        onClick={() => {
+                          logoutMutation.mutate();
+                          setMobileMenuOpen(false);
+                        }}
+                        className="flex items-center text-gray-700 hover:text-primary-600"
+                      >
+                        <LogOut className="h-4 w-4 mr-1" />
+                        <span>Logout</span>
+                      </button>
+                    </>
                   )}
                 </div>
               </SheetContent>
@@ -97,7 +113,18 @@ export default function Header() {
 
             {isAdmin && (
               <>
-                {/* 移除了New Post链接，避免与主页内容重复 */}
+                <Link 
+                  href="/new-post" 
+                  className="flex items-center font-medium text-gray-700 hover:text-primary-600"
+                >
+                  <span>New Post</span>
+                </Link>
+                <Link 
+                  href="/new-project" 
+                  className="flex items-center font-medium text-gray-700 hover:text-primary-600"
+                >
+                  <span>New Project</span>
+                </Link>
                 <Button 
                   variant="ghost" 
                   size="sm" 

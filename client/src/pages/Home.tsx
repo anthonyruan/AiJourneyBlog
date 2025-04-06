@@ -58,31 +58,7 @@ export default function Home() {
               </Button>
             </div>
             
-            {/* Admin links - only shown when logged in */}
-            <div className="mt-4">
-              {isAdmin && (
-                <div className="flex justify-center gap-3 flex-wrap">
-                  <Link 
-                    href="/new-post" 
-                    className="text-sm text-primary-700 hover:text-primary-900 underline"
-                  >
-                    New Post
-                  </Link>
-                  <Link 
-                    href="/new-project" 
-                    className="text-sm text-primary-700 hover:text-primary-900 underline"
-                  >
-                    New Project
-                  </Link>
-                  <button 
-                    onClick={() => logoutMutation.mutate()}
-                    className="text-sm text-red-600 hover:text-red-800 underline"
-                  >
-                    Logout
-                  </button>
-                </div>
-              )}
-            </div>
+            {/* Admin buttons removed from here and moved to header navigation */}
           </div>
         </div>
       </section>
