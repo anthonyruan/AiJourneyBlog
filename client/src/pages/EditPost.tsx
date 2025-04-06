@@ -226,7 +226,7 @@ export default function EditPost() {
                       />
                     </FormControl>
                     <FormDescription>
-                      You can use Markdown for formatting
+                      You can use Markdown for formatting. 添加图片请使用: ![图片描述](图片URL)
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

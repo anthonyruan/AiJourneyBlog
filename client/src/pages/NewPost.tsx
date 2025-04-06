@@ -264,6 +264,9 @@ export default function NewPost() {
                               {...field}
                             />
                           </FormControl>
+                          <div className="text-sm text-gray-500 mt-1">
+                            支持Markdown格式。添加图片请使用: ![图片描述](图片URL)
+                          </div>
                           <FormMessage />
                         </FormItem>
                       )}
