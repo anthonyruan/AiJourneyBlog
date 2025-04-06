@@ -15,19 +15,17 @@ export default function TimelinePost({ post, commentsCount = 0, index }: Timelin
   
   return (
     <div className="mb-16 relative max-w-4xl mx-auto">
-      {/* Timeline line - centered */}
-      <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gray-200 transform -translate-x-1/2 -mt-6 h-full"></div>
-      
-      {/* Timeline dot - centered */}
-      <div className="absolute left-1/2 bg-primary-500 rounded-full w-8 h-8 z-10 flex items-center justify-center shadow-md transform -translate-x-1/2">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
-        </svg>
-      </div>
-      
-      {/* Content card - centered below timeline dot */}
-      <div className="w-full md:w-3/4 lg:w-2/3 mx-auto mt-4 pt-6">
-        <div className="text-sm text-gray-500 mb-1 text-center">{formattedDate}</div>
+      {/* Content card - now in a cleaner, unified layout without timeline */}
+      <div className="w-full md:w-3/4 lg:w-2/3 mx-auto">
+        <div className="flex items-center justify-center mb-2">
+          <div className="bg-primary-500 rounded-full w-10 h-10 flex items-center justify-center shadow-sm mr-3">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <div className="text-sm text-gray-500">{formattedDate}</div>
+        </div>
+        
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300">
           {post.coverImage && (
             <img 
