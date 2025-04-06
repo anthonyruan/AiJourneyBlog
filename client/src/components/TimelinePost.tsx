@@ -7,12 +7,12 @@ import { Post } from "@shared/schema";
 interface TimelinePostProps {
   post: Post;
   commentsCount?: number;
-  index: number; // 添加索引以确定左右布局
+  index: number; // Added index to determine left/right layout
 }
 
 export default function TimelinePost({ post, commentsCount = 0, index }: TimelinePostProps) {
   const formattedDate = formatDistanceToNow(new Date(post.publishedAt), { addSuffix: true });
-  const isEven = index % 2 === 0; // 偶数索引在左侧，奇数索引在右侧
+  const isEven = index % 2 === 0; // Even indices on the left, odd indices on the right
   
   return (
     <div className="mb-16 relative max-w-4xl mx-auto">

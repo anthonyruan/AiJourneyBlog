@@ -22,17 +22,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 
 const projectSchema = z.object({
-  title: z.string().min(1, "项目标题是必填的"),
-  description: z.string().min(1, "项目描述是必填的"),
-  imageUrl: z.string().url("请输入有效的URL").optional().or(z.literal("")),
-  huggingFaceUrl: z.string().url("请输入有效的Hugging Face URL").optional().or(z.literal("")),
+  title: z.string().min(1, "Project title is required"),
+  description: z.string().min(1, "Project description is required"),
+  imageUrl: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
+  huggingFaceUrl: z.string().url("Please enter a valid Hugging Face URL").optional().or(z.literal("")),
   tags: z.string().optional().transform(val => 
     val ? val.split(',').map(tag => tag.trim()) : []
   ),
   isActive: z.boolean().default(true),
 });
 
-// 为了解决TypeScript的错误，我们手动定义tags的类型
+// To solve TypeScript errors, we manually define the tags type
 type ProjectFormValues = Omit<z.infer<typeof projectSchema>, 'tags'> & {
   tags: string | string[];
 };
@@ -60,16 +60,16 @@ export default function NewProject() {
     },
     onSuccess: (data) => {
       toast({
-        title: "项目创建成功！",
-        description: "您的AI项目已成功发布",
+        title: "Project created successfully!",
+        description: "Your AI project has been published",
       });
       queryClient.invalidateQueries({ queryKey: ['/api/projects'] });
       setLocation("/projects");
     },
     onError: (error) => {
       toast({
-        title: "错误",
-        description: `创建项目失败: ${error}`,
+        title: "Error",
+        description: `Failed to create project: ${error}`,
         variant: "destructive",
       });
     },
@@ -84,7 +84,7 @@ export default function NewProject() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
         <Card>
           <CardHeader>
-            <CardTitle className="text-2xl font-bold">创建新的AI项目</CardTitle>
+            <CardTitle className="text-2xl font-bold">Create New AI Project</CardTitle>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -95,9 +95,9 @@ export default function NewProject() {
                     name="title"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>项目标题</FormLabel>
+                        <FormLabel>Project Title</FormLabel>
                         <FormControl>
-                          <Input placeholder="例如：图像识别模型" {...field} />
+                          <Input placeholder="Example: Image Recognition Model" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -109,7 +109,7 @@ export default function NewProject() {
                     name="imageUrl"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>封面图片URL (可选)</FormLabel>
+                        <FormLabel>Cover Image URL (Optional)</FormLabel>
                         <FormControl>
                           <Input 
                             placeholder="https://example.com/image.jpg" 
@@ -127,10 +127,10 @@ export default function NewProject() {
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>项目描述</FormLabel>
+                      <FormLabel>Project Description</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="描述您的AI项目功能和用途..."
+                          placeholder="Describe the functionality and purpose of your AI project..."
                           rows={4}
                           {...field}
                         />
@@ -161,18 +161,18 @@ export default function NewProject() {
                   control={form.control}
                   name="tags"
                   render={({ field }) => {
-                    // 特殊处理，如果field.value是数组，则转换为逗号分隔的字符串
+                    // Special handling, if field.value is an array, convert to comma-separated string
                     const value = Array.isArray(field.value) ? field.value.join(', ') : field.value;
                     return (
                       <FormItem>
-                        <FormLabel>标签 (逗号分隔)</FormLabel>
+                        <FormLabel>Tags (comma-separated)</FormLabel>
                         <FormControl>
                           <Input 
-                            placeholder="NLP, 图像识别, 文本生成" 
+                            placeholder="NLP, Image Recognition, Text Generation" 
                             {...field}
                             value={value}
                             onChange={(e) => {
-                              // 当用户输入时，只更新字段的字符串值
+                              // When user inputs, only update the string value of the field
                               field.onChange(e.target.value);
                             }}
                           />
@@ -190,11 +190,11 @@ export default function NewProject() {
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
                         <FormLabel className="text-base">
-                          项目状态
+                          Project Status
                         </FormLabel>
                         <FormMessage />
                         <p className="text-sm text-muted-foreground">
-                          设置为活跃状态以在项目列表中显示此项目
+                          Set as active to display this project in the project list
                         </p>
                       </div>
                       <FormControl>
@@ -213,13 +213,13 @@ export default function NewProject() {
                     variant="outline"
                     onClick={() => setLocation("/projects")}
                   >
-                    取消
+                    Cancel
                   </Button>
                   <Button 
                     type="submit" 
                     disabled={projectMutation.isPending}
                   >
-                    {projectMutation.isPending ? "发布中..." : "发布项目"}
+                    {projectMutation.isPending ? "Publishing..." : "Publish Project"}
                   </Button>
                 </div>
               </form>

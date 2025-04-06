@@ -46,7 +46,7 @@ const postSchema = z.object({
   huggingFacePlaceholder: z.string().optional().or(z.literal("")),
 });
 
-// 使用原始的schema类型，但为了解决TypeScript的错误，我们手动定义tags的类型
+// Using the original schema type, but to solve TypeScript errors, we manually define the tags type
 type PostFormValues = Omit<z.infer<typeof postSchema>, 'tags'> & {
   tags: string | string[];
 };
@@ -99,7 +99,7 @@ export default function NewPost() {
   });
 
   const onSubmit = (data: PostFormValues) => {
-    // tags已经由schema转换为字符串数组
+    // tags have already been converted to string arrays by the schema
     const slug = slugify(data.title);
     postMutation.mutate({ ...data, slug });
   };
@@ -168,7 +168,7 @@ export default function NewPost() {
                   control={form.control}
                   name="tags"
                   render={({ field }) => {
-                    // 特殊处理，如果field.value是数组，则转换为逗号分隔的字符串
+                    // Special handling: if field.value is an array, convert to comma-separated string
                     const value = Array.isArray(field.value) ? field.value.join(', ') : field.value;
                     return (
                       <FormItem>
@@ -179,7 +179,7 @@ export default function NewPost() {
                             {...field}
                             value={value}
                             onChange={(e) => {
-                              // 当用户输入时，只更新字段的字符串值
+                              // When user inputs, only update the string value of the field
                               field.onChange(e.target.value);
                             }}
                           />
@@ -191,8 +191,8 @@ export default function NewPost() {
                 />
                 
                 <div className="space-y-4 border border-gray-200 p-4 rounded-md">
-                  <h3 className="text-lg font-medium">Hugging Face 模型 (可选)</h3>
-                  <p className="text-sm text-gray-500">如果您想在文章中嵌入Hugging Face模型，请填写以下字段</p>
+                  <h3 className="text-lg font-medium">Hugging Face Model (Optional)</h3>
+                  <p className="text-sm text-gray-500">If you want to embed a Hugging Face model in your article, please fill in the following fields</p>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormField
@@ -200,9 +200,9 @@ export default function NewPost() {
                       name="huggingFaceModelTitle"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>模型标题</FormLabel>
+                          <FormLabel>Model Title</FormLabel>
                           <FormControl>
-                            <Input placeholder="例如：文本分类模型" {...field} />
+                            <Input placeholder="Example: Text Classification Model" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -214,7 +214,7 @@ export default function NewPost() {
                       name="huggingFaceModelUrl"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>模型URL</FormLabel>
+                          <FormLabel>Model URL</FormLabel>
                           <FormControl>
                             <Input 
                               placeholder="https://huggingface.co/spaces/username/model-name" 
@@ -232,10 +232,10 @@ export default function NewPost() {
                     name="huggingFacePlaceholder"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>占位符文本</FormLabel>
+                        <FormLabel>Placeholder Text</FormLabel>
                         <FormControl>
                           <Input 
-                            placeholder="输入一段文字进行分析..." 
+                            placeholder="Enter text for analysis..." 
                             {...field} 
                           />
                         </FormControl>
