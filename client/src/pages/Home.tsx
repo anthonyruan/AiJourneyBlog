@@ -56,15 +56,6 @@ export default function Home() {
               >
                 <Link href="#blog">Read Blog</Link>
               </Button>
-              <Button 
-                asChild
-                size="lg" 
-                variant="outline" 
-                className="text-primary-600 border-primary-600 hover:bg-primary-50"
-                onClick={() => setLocation("#projects")}
-              >
-                <Link href="#projects">View Projects</Link>
-              </Button>
             </div>
             
             {/* Admin buttons removed - accessible only via direct URL */}
