@@ -43,10 +43,15 @@ export default function ProjectCard({ project }: ProjectCardProps) {
           </div>
         )}
         {project.huggingFaceUrl && (
-          <Button className="w-full justify-center bg-primary-600 hover:bg-primary-700">
+          <a 
+            href={project.huggingFaceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center w-full px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md font-medium text-sm"
+          >
             <ExternalLink className="h-4 w-4 mr-2" />
             View on Hugging Face
-          </Button>
+          </a>
         )}
       </div>
     </div>

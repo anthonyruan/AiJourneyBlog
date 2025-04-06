@@ -1,8 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import ProjectCard from "@/components/ProjectCard";
 import { Project } from "@shared/schema";
+import { useLocation } from "wouter";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function Projects() {
+  const { isAdmin } = useAuth();
   const { data: projects = [], isLoading } = useQuery<Project[]>({
     queryKey: ['/api/projects'],
   });
@@ -19,6 +22,17 @@ export default function Projects() {
             <p className="mt-3 max-w-2xl mx-auto text-xl text-gray-600">
               Explore my AI projects and experiments hosted on Hugging Face Spaces
             </p>
+            {/* Admin can see the add project button */}
+            <div className="mt-6">
+              {isAdmin && (
+                <a 
+                  href="/new-project" 
+                  className="inline-flex items-center justify-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md font-medium text-sm"
+                >
+                  Add New Project
+                </a>
+              )}
+            </div>
           </div>
         </div>
       </section>

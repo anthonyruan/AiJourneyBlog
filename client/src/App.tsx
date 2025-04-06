@@ -10,6 +10,10 @@ import Projects from "@/pages/Projects";
 import About from "@/pages/About";
 import Contact from "@/pages/Contact";
 import NewPost from "@/pages/NewPost";
+import NewProject from "@/pages/NewProject";
+import LoginPage from "@/pages/LoginPage";
+import { AuthProvider } from "@/hooks/use-auth";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 function Router() {
   return (
@@ -20,7 +24,9 @@ function Router() {
         <Route path="/projects" component={Projects} />
         <Route path="/about" component={About} />
         <Route path="/contact" component={Contact} />
-        <Route path="/new-post" component={NewPost} />
+        <Route path="/login" component={LoginPage} />
+        <ProtectedRoute path="/new-post" component={NewPost} />
+        <ProtectedRoute path="/new-project" component={NewProject} />
         <Route component={NotFound} />
       </Switch>
     </Layout>
@@ -30,8 +36,10 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router />
-      <Toaster />
+      <AuthProvider>
+        <Router />
+        <Toaster />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
