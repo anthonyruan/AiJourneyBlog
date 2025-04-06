@@ -22,8 +22,9 @@ export default function Header() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-2 md:justify-start md:space-x-10">
           <div className="flex justify-start lg:w-0 lg:flex-1">
-            <Link href="/" className="flex items-center">
+            <Link href="/" className="flex items-center space-x-3">
               <img src={iaimLogo} alt="I'm AI Man logo" className="h-20 w-auto" />
+              <span className="font-heading font-bold text-2xl text-primary-600">I'm AI Man</span>
             </Link>
           </div>
           
@@ -38,8 +39,9 @@ export default function Header() {
               </SheetTrigger>
               <SheetContent side="right" className="py-6 px-5">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center">
+                  <div className="flex items-center space-x-2">
                     <img src={iaimLogo} alt="I'm AI Man logo" className="h-16 w-auto" />
+                    <span className="font-heading font-bold text-xl text-primary-600">I'm AI Man</span>
                   </div>
                   <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
                     <X className="h-5 w-5 text-gray-500" />
