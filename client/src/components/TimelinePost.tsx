@@ -14,9 +14,9 @@ export default function TimelinePost({ post, commentsCount = 0, index }: Timelin
   const formattedDate = formatDistanceToNow(new Date(post.publishedAt), { addSuffix: true });
   
   return (
-    <div className="mb-16 relative max-w-4xl mx-auto">
-      {/* Content card - now in a cleaner, unified layout without timeline */}
-      <div className="w-full md:w-3/4 lg:w-2/3 mx-auto">
+    <div className="mb-16 relative max-w-6xl mx-auto">
+      {/* Content card - now in a cleaner, unified layout without timeline, with increased width */}
+      <div className="w-full md:w-5/6 lg:w-5/6 mx-auto">
         <div className="flex items-center justify-center mb-2">
           <div className="bg-primary-500 rounded-full w-10 h-10 flex items-center justify-center shadow-sm mr-3">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
@@ -31,7 +31,7 @@ export default function TimelinePost({ post, commentsCount = 0, index }: Timelin
             <img 
               src={post.coverImage}
               alt={post.title} 
-              className="w-full h-40 object-cover"
+              className="w-full h-52 object-cover"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 target.onerror = null; // Prevent infinite loop
