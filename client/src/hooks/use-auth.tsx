@@ -53,8 +53,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       return await res.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+    onSuccess: (data) => {
+      // 直接设置用户数据到缓存中
+      queryClient.setQueryData(["/api/user"], data);
       toast({
         title: "登录成功",
         description: "你现在已经登录为管理员",
@@ -78,8 +79,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       return await res.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+    onSuccess: (data) => {
+      // 直接设置用户数据到缓存中
+      queryClient.setQueryData(["/api/user"], data);
       toast({
         title: "注册成功",
         description: "你现在已经登录",
@@ -103,7 +105,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      // 直接将用户数据设为null
+      queryClient.setQueryData(["/api/user"], null);
       toast({
         title: "退出登录成功",
         description: "你已经退出登录",

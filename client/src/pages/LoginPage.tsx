@@ -44,8 +44,9 @@ export default function LoginPage() {
 
   const onSubmit = (data: LoginFormValues) => {
     loginMutation.mutate(data, {
-      onSuccess: () => {
-        navigate("/");
+      onSuccess: (userData) => {
+        // 确保UI立即反映登录状态
+        window.location.href = "/";
       },
     });
   };
