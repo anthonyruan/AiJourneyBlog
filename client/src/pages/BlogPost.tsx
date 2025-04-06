@@ -24,8 +24,8 @@ export default function BlogPost() {
     }
   }, [isError, setLocation]);
 
-  // Check if post includes Hugging Face demo
-  const hasHuggingFaceDemo = post?.content?.includes('Hugging Face Spaces');
+  // Check if post has Hugging Face model data
+  const hasHuggingFaceModel = post?.huggingFaceModelUrl && post.huggingFaceModelTitle;
 
   return (
     <>
@@ -83,13 +83,14 @@ export default function BlogPost() {
               <div className="prose prose-blue max-w-none">
                 <Markdown content={post.content} />
                 
-                {/* Insert Hugging Face Embed if needed */}
-                {hasHuggingFaceDemo && (
-                  <div className="my-8">
+                {/* Insert Hugging Face Embed if available */}
+                {hasHuggingFaceModel && (
+                  <div className="my-8 border border-gray-200 rounded-lg p-4">
+                    <h3 className="text-xl font-bold mb-4">{post.huggingFaceModelTitle}</h3>
                     <HuggingFaceEmbed
-                      title="Story Generator Demo"
-                      modelUrl="https://huggingface.co/spaces/demo/text-generation"
-                      placeholderText="Enter a story prompt..."
+                      title={post.huggingFaceModelTitle || ""}
+                      modelUrl={post.huggingFaceModelUrl || ""}
+                      placeholderText={post.huggingFacePlaceholder || "输入内容..."}
                     />
                   </div>
                 )}

@@ -41,6 +41,9 @@ const postSchema = z.object({
   tags: z.string().optional().transform(val => 
     val ? val.split(',').map(tag => tag.trim()) : []
   ),
+  huggingFaceModelTitle: z.string().optional().or(z.literal("")),
+  huggingFaceModelUrl: z.string().url("Please enter a valid Hugging Face URL").optional().or(z.literal("")),
+  huggingFacePlaceholder: z.string().optional().or(z.literal("")),
 });
 
 // 使用原始的schema类型，但为了解决TypeScript的错误，我们手动定义tags的类型
@@ -61,6 +64,9 @@ export default function NewPost() {
       content: "",
       coverImage: "",
       tags: [],
+      huggingFaceModelTitle: "",
+      huggingFaceModelUrl: "",
+      huggingFacePlaceholder: "",
     },
   });
 
@@ -183,6 +189,61 @@ export default function NewPost() {
                     );
                   }}
                 />
+                
+                <div className="space-y-4 border border-gray-200 p-4 rounded-md">
+                  <h3 className="text-lg font-medium">Hugging Face 模型 (可选)</h3>
+                  <p className="text-sm text-gray-500">如果您想在文章中嵌入Hugging Face模型，请填写以下字段</p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="huggingFaceModelTitle"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>模型标题</FormLabel>
+                          <FormControl>
+                            <Input placeholder="例如：文本分类模型" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="huggingFaceModelUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>模型URL</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="https://huggingface.co/spaces/username/model-name" 
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <FormField
+                    control={form.control}
+                    name="huggingFacePlaceholder"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>占位符文本</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="输入一段文字进行分析..." 
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 <Tabs value={tab} onValueChange={setTab} className="w-full">
                   <TabsList className="grid w-full grid-cols-2">

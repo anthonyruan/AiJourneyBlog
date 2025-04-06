@@ -33,6 +33,9 @@ export const posts = pgTable("posts", {
   publishedAt: timestamp("published_at").notNull(),
   authorId: integer("author_id").notNull(),
   tags: text("tags").array(),
+  huggingFaceModelTitle: text("hugging_face_model_title"),
+  huggingFaceModelUrl: text("hugging_face_model_url"),
+  huggingFacePlaceholder: text("hugging_face_placeholder"),
 });
 
 export const insertPostSchema = createInsertSchema(posts).omit({

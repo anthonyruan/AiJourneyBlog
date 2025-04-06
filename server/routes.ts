@@ -89,6 +89,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         publishedAt: z.date().optional(),
         authorId: z.number().optional(),
         tags: z.array(z.string()).optional(),
+        huggingFaceModelTitle: z.string().optional(),
+        huggingFaceModelUrl: z.string().optional(),
+        huggingFacePlaceholder: z.string().optional(),
       }).parse(processedData);
       
       const post = await storage.updatePost(id, validatedData);
