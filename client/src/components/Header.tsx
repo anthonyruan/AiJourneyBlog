@@ -57,11 +57,7 @@ export default function Header() {
                   <Link href="/about" onClick={() => setMobileMenuOpen(false)} className="block text-base font-medium text-gray-700 hover:text-primary-600">
                     About
                   </Link>
-                  {isAdmin && (
-                    <Link href="/new-post" onClick={() => setMobileMenuOpen(false)} className="block text-base font-medium text-green-600 hover:text-green-700">
-                      New Post
-                    </Link>
-                  )}
+                  {/* Admin controls removed - accessible only via direct URL */}
                 </div>
                 <div className="mt-6 space-y-4">
                   <Link href="#" className="flex items-center text-gray-700 hover:text-primary-600">
@@ -69,27 +65,7 @@ export default function Header() {
                     <span>Search</span>
                   </Link>
                   
-                  {isAdmin ? (
-                    <button
-                      onClick={() => {
-                        logoutMutation.mutate();
-                        setMobileMenuOpen(false);
-                      }}
-                      className="flex items-center text-gray-700 hover:text-primary-600"
-                    >
-                      <LogOut className="h-4 w-4 mr-1" />
-                      <span>Logout</span>
-                    </button>
-                  ) : (
-                    <Link 
-                      href="/login" 
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center text-gray-700 hover:text-primary-600"
-                    >
-                      <LogIn className="h-4 w-4 mr-1" />
-                      <span>Login</span>
-                    </Link>
-                  )}
+                  {/* Admin login/logout controls removed */}
                 </div>
               </SheetContent>
             </Sheet>
@@ -108,27 +84,7 @@ export default function Header() {
               <span>Search</span>
             </Link>
 
-            {isAdmin ? (
-              <>
-                <Link href="/new-post" className="flex items-center text-green-600 hover:text-green-700">
-                  <span className="text-sm font-medium">New Post</span>
-                </Link>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => logoutMutation.mutate()}
-                  className="flex items-center text-gray-700 hover:text-primary-600"
-                >
-                  <LogOut className="h-4 w-4 mr-1" />
-                  <span>Logout</span>
-                </Button>
-              </>
-            ) : (
-              <Link href="/login" className="flex items-center text-gray-700 hover:text-primary-600">
-                <LogIn className="h-4 w-4 mr-1" />
-                <span>Login</span>
-              </Link>
-            )}
+            {/* Admin controls removed - accessible only via direct URL */}
           </div>
         </div>
       </div>
