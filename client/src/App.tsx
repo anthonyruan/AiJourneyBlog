@@ -10,6 +10,7 @@ import Projects from "@/pages/Projects";
 import About from "@/pages/About";
 import Contact from "@/pages/Contact";
 import NewPost from "@/pages/NewPost";
+import EditPost from "@/pages/EditPost";
 import NewProject from "@/pages/NewProject";
 import LoginPage from "@/pages/LoginPage";
 import { AuthProvider } from "@/hooks/use-auth";
@@ -26,6 +27,7 @@ function Router() {
         <Route path="/contact" component={Contact} />
         <Route path="/login" component={LoginPage} />
         <ProtectedRoute path="/new-post" component={NewPost} />
+        <ProtectedRoute path="/edit-post/:slug" component={EditPost} />
         <ProtectedRoute path="/new-project" component={NewProject} />
         <Route component={NotFound} />
       </Switch>

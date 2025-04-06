@@ -7,11 +7,17 @@ import NewsletterForm from "@/components/NewsletterForm";
 import HuggingFaceEmbed from "@/components/HuggingFaceEmbed";
 import { Markdown } from "@/components/ui/markdown";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Edit, ArrowLeft } from "lucide-react";
 import { Post } from "@shared/schema";
+import { useAuth } from "@/hooks/use-auth";
+
+// 确保替换所有中文注释为英文，避免编码问题
 
 export default function BlogPost() {
   const params = useParams<{ slug: string }>();
   const [, setLocation] = useLocation();
+  const { isAdmin } = useAuth();
 
   // Get post data
   const { data: post, isLoading, isError } = useQuery<Post>({
@@ -26,6 +32,13 @@ export default function BlogPost() {
 
   // Check if post has Hugging Face model data
   const hasHuggingFaceModel = post?.huggingFaceModelUrl && post.huggingFaceModelTitle;
+  
+  // Navigate to edit page
+  const handleEditPost = () => {
+    if (post) {
+      setLocation(`/edit-post/${post.slug}`);
+    }
+  };
 
   return (
     <>
@@ -46,6 +59,29 @@ export default function BlogPost() {
         <>
           <article className="py-12 bg-white">
             <div className="container mx-auto px-4 max-w-3xl">
+              {/* Back button and Admin Edit button */}
+              <div className="flex justify-between items-center mb-6">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setLocation("/")}
+                  className="flex items-center gap-1"
+                >
+                  <ArrowLeft className="h-4 w-4" /> Back
+                </Button>
+                
+                {isAdmin && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleEditPost}
+                    className="flex items-center gap-1 text-blue-600 hover:text-blue-800 border-blue-200 hover:border-blue-400"
+                  >
+                    <Edit className="h-4 w-4" /> Edit Post
+                  </Button>
+                )}
+              </div>
+              
               {/* Post Header */}
               <header className="mb-8">
                 <h1 className="text-4xl font-bold font-heading text-gray-900 mb-4">
@@ -90,7 +126,7 @@ export default function BlogPost() {
                     <HuggingFaceEmbed
                       title={post.huggingFaceModelTitle || ""}
                       modelUrl={post.huggingFaceModelUrl || ""}
-                      placeholderText={post.huggingFacePlaceholder || "输入内容..."}
+                      placeholderText={post.huggingFacePlaceholder || "Enter content..."}
                     />
                   </div>
                 )}
