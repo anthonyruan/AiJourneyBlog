@@ -6,9 +6,12 @@ import ProjectCard from "@/components/ProjectCard";
 import NewsletterForm from "@/components/NewsletterForm";
 import { Button } from "@/components/ui/button";
 import { Post, Project } from "@shared/schema";
+import { useAuth } from "@/hooks/use-auth";
+import { AdminLink } from "@/components/ProtectedRoute";
 
 export default function Home() {
   const [location, setLocation] = useLocation();
+  const { isAdmin, logoutMutation } = useAuth();
 
   // Get posts
   const { data: posts = [], isLoading: isLoadingPosts } = useQuery<Post[]>({
@@ -51,7 +54,7 @@ export default function Home() {
                 className="bg-primary-600 hover:bg-primary-700"
                 onClick={() => setLocation("#blog")}
               >
-                <Link href="#blog">Read the Blog</Link>
+                <Link href="#blog">阅读博客</Link>
               </Button>
               <Button 
                 asChild
@@ -60,8 +63,41 @@ export default function Home() {
                 className="text-primary-600 border-primary-600 hover:bg-primary-50"
                 onClick={() => setLocation("#projects")}
               >
-                <Link href="#projects">View Projects</Link>
+                <Link href="#projects">查看项目</Link>
               </Button>
+            </div>
+            
+            {/* Admin or Login links */}
+            <div className="mt-4">
+              {isAdmin ? (
+                <div className="flex justify-center gap-3 flex-wrap">
+                  <AdminLink 
+                    href="/new-post" 
+                    className="text-sm text-primary-700 hover:text-primary-900 underline"
+                  >
+                    新建博客文章
+                  </AdminLink>
+                  <AdminLink 
+                    href="/new-project" 
+                    className="text-sm text-primary-700 hover:text-primary-900 underline"
+                  >
+                    新建项目
+                  </AdminLink>
+                  <button 
+                    onClick={() => logoutMutation.mutate()}
+                    className="text-sm text-red-600 hover:text-red-800 underline"
+                  >
+                    退出登录
+                  </button>
+                </div>
+              ) : (
+                <a 
+                  href="/login" 
+                  className="text-sm text-gray-600 hover:text-primary-700 underline"
+                >
+                  管理员登录
+                </a>
+              )}
             </div>
           </div>
         </div>
@@ -104,7 +140,7 @@ export default function Home() {
                   className="px-6 py-3 text-base"
                 >
                   <Link href="/blog">
-                    View All Posts
+                    查看所有文章
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
                     </svg>
