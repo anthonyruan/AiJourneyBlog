@@ -29,7 +29,7 @@ const projectSchema = z.object({
   tags: z.string().optional().transform(val => 
     val ? val.split(',').map(tag => tag.trim()) : []
   ),
-  isActive: z.boolean().default(true),
+  isActive: z.number().default(1),
 });
 
 // To solve TypeScript errors, we manually define the tags type
@@ -49,7 +49,7 @@ export default function NewProject() {
       imageUrl: "",
       huggingFaceUrl: "",
       tags: [],
-      isActive: true,
+      isActive: 1,
     },
   });
 
@@ -199,8 +199,8 @@ export default function NewProject() {
                       </div>
                       <FormControl>
                         <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
+                          checked={Boolean(field.value)}
+                          onCheckedChange={(checked) => field.onChange(checked ? 1 : 0)}
                         />
                       </FormControl>
                     </FormItem>
