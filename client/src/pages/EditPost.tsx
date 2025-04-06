@@ -242,6 +242,9 @@ export default function EditPost() {
                     <FormControl>
                       <Input placeholder="https://example.com/image.jpg" {...field} />
                     </FormControl>
+                    <FormDescription>
+                      请使用直接图片链接，不要使用短链接。对于ibb.co网站，请使用直接图片URL（以.jpg、.png等结尾的链接），而不是图片页面链接。
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

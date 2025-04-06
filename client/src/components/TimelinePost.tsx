@@ -32,9 +32,14 @@ export default function TimelinePost({ post, commentsCount = 0, index }: Timelin
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300">
           {post.coverImage && (
             <img 
-              src={post.coverImage} 
+              src={post.coverImage}
               alt={post.title} 
               className="w-full h-40 object-cover"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.onerror = null; // Prevent infinite loop
+                target.src = 'https://via.placeholder.com/800x400?text=Image+Not+Found';
+              }}
             />
           )}
           <div className="p-5">

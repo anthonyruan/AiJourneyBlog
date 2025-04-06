@@ -111,6 +111,11 @@ export default function BlogPost() {
                     src={post.coverImage}
                     alt={post.title}
                     className="w-full h-auto rounded-lg mb-8 shadow-md"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.onerror = null; // Prevent infinite loop
+                      target.src = 'https://via.placeholder.com/1200x630?text=Image+Not+Found';
+                    }}
                   />
                 )}
               </header>
