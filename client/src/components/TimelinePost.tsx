@@ -12,7 +12,6 @@ interface TimelinePostProps {
 
 export default function TimelinePost({ post, commentsCount = 0, index }: TimelinePostProps) {
   const formattedDate = formatDistanceToNow(new Date(post.publishedAt), { addSuffix: true });
-  const isEven = index % 2 === 0; // Even indices on the left, odd indices on the right
   
   return (
     <div className="mb-16 relative max-w-4xl mx-auto">
@@ -26,9 +25,9 @@ export default function TimelinePost({ post, commentsCount = 0, index }: Timelin
         </svg>
       </div>
       
-      {/* Content card - conditionally positioned, with responsive layout */}
-      <div className={`w-full md:w-5/12 ${isEven ? 'md:ml-auto md:mr-8 lg:mr-12' : 'md:mr-auto md:ml-8 lg:ml-12'}`}>
-        <div className={`text-sm text-gray-500 mb-1 text-center md:text-left ${isEven ? 'md:text-right' : 'md:text-left'}`}>{formattedDate}</div>
+      {/* Content card - centered below timeline dot */}
+      <div className="w-full md:w-3/4 lg:w-2/3 mx-auto mt-4 pt-6">
+        <div className="text-sm text-gray-500 mb-1 text-center">{formattedDate}</div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300">
           {post.coverImage && (
             <img 
