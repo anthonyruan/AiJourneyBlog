@@ -56,6 +56,12 @@ export function setupAuth(app: Express) {
     store: new MemoryStore({
       checkPeriod: 86400000, // 清除过期会话的周期，设为24小时
     }),
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // 在生产环境中使用secure
+      sameSite: "lax", // 解决Safari和Chrome的SameSite策略差异
+      maxAge: 24 * 60 * 60 * 1000 // 24小时
+    }
   };
 
   app.set("trust proxy", 1);

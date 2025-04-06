@@ -54,12 +54,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return await res.json();
     },
     onSuccess: (data) => {
-      // 直接设置用户数据到缓存中
+      // 直接设置用户数据到缓存中，确保登录状态立即可见
       queryClient.setQueryData(["/api/user"], data);
       toast({
-        title: "登录成功",
-        description: "你现在已经登录为管理员",
+        title: "Login successful",
+        description: "You are now logged in as admin",
       });
+      
+      // 短暂延迟后刷新页面，确保所有浏览器都能正确加载用户状态
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 500);
     },
     onError: (error: Error) => {
       toast({
@@ -83,13 +88,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // 直接设置用户数据到缓存中
       queryClient.setQueryData(["/api/user"], data);
       toast({
-        title: "注册成功",
-        description: "你现在已经登录",
+        title: "Registration successful",
+        description: "You are now logged in",
       });
+      
+      // 短暂延迟后刷新页面，确保所有浏览器都能正确加载用户状态
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 500);
     },
     onError: (error: Error) => {
       toast({
-        title: "注册失败",
+        title: "Registration failed",
         description: error.message,
         variant: "destructive",
       });
@@ -108,13 +118,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // 直接将用户数据设为null
       queryClient.setQueryData(["/api/user"], null);
       toast({
-        title: "退出登录成功",
-        description: "你已经退出登录",
+        title: "Logout successful",
+        description: "You have been logged out",
       });
+      
+      // 强制刷新页面，确保在所有浏览器中都能正确清除状态
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 500);
     },
     onError: (error: Error) => {
       toast({
-        title: "退出登录失败",
+        title: "Logout failed",
         description: error.message,
         variant: "destructive",
       });
