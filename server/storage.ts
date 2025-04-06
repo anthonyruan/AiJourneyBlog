@@ -7,7 +7,10 @@ import {
   subscribers, type Subscriber, type InsertSubscriber
 } from "@shared/schema";
 
+import session from "express-session";
+
 export interface IStorage {
+  sessionStore: session.Store;
   // Users
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
@@ -45,7 +48,17 @@ export interface IStorage {
   deleteSubscriber(id: number): Promise<boolean>;
 }
 
+import createMemoryStore from "memorystore";
+import connectPg from "connect-pg-simple";
+import { db } from './db';
+import { eq, desc } from 'drizzle-orm';
+import postgres from 'postgres';
+
+const MemoryStore = createMemoryStore(session);
+
+// MemStorage implementation for memory storage
 export class MemStorage implements IStorage {
+  sessionStore: session.Store;
   private users: Map<number, User>;
   private posts: Map<number, Post>;
   private projects: Map<number, Project>;
@@ -61,6 +74,11 @@ export class MemStorage implements IStorage {
   private subscriberCurrentId: number;
 
   constructor() {
+    // Initialize session store
+    this.sessionStore = new MemoryStore({
+      checkPeriod: 86400000 // prune expired entries every 24h
+    });
+    
     this.users = new Map();
     this.posts = new Map();
     this.projects = new Map();
@@ -269,19 +287,216 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Database storage implementation
+export class DatabaseStorage implements IStorage {
+  sessionStore: session.Store;
+  
+  constructor() {
+    // PostgreSQL session store setup
+    const PostgresSessionStore = connectPg(session);
+    
+    // Create a PostgreSQL pool for the session store
+    const sessionPool = postgres(process.env.DATABASE_URL!, { 
+      max: 5
+    });
+    
+    // Create session store with PostgreSQL
+    this.sessionStore = new PostgresSessionStore({
+      pool: sessionPool,
+      createTableIfMissing: true
+    });
+  }
+  
+  // User methods
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+  
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
+  }
+  
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db.insert(users).values({
+      ...insertUser,
+      displayName: insertUser.displayName ?? null,
+      bio: insertUser.bio ?? null,
+      avatarUrl: insertUser.avatarUrl ?? null,
+      email: insertUser.email ?? null
+    }).returning();
+    return user;
+  }
+  
+  // Post methods
+  async getPosts(): Promise<Post[]> {
+    return await db.select().from(posts).orderBy(desc(posts.publishedAt));
+  }
+  
+  async getPostById(id: number): Promise<Post | undefined> {
+    const [post] = await db.select().from(posts).where(eq(posts.id, id));
+    return post;
+  }
+  
+  async getPostBySlug(slug: string): Promise<Post | undefined> {
+    const [post] = await db.select().from(posts).where(eq(posts.slug, slug));
+    return post;
+  }
+  
+  async createPost(insertPost: InsertPost): Promise<Post> {
+    const [post] = await db.insert(posts).values({
+      ...insertPost,
+      excerpt: insertPost.excerpt ?? null,
+      coverImage: insertPost.coverImage ?? null,
+      tags: insertPost.tags ?? null,
+      huggingFaceModelTitle: insertPost.huggingFaceModelTitle ?? null,
+      huggingFaceModelUrl: insertPost.huggingFaceModelUrl ?? null,
+      huggingFacePlaceholder: insertPost.huggingFacePlaceholder ?? null
+    }).returning();
+    return post;
+  }
+  
+  async updatePost(id: number, postUpdate: Partial<InsertPost>): Promise<Post | undefined> {
+    const [updatedPost] = await db.update(posts)
+      .set(postUpdate)
+      .where(eq(posts.id, id))
+      .returning();
+    return updatedPost;
+  }
+  
+  async deletePost(id: number): Promise<boolean> {
+    await db.delete(posts).where(eq(posts.id, id));
+    return true;
+  }
+  
+  async getPostsByTag(tag: string): Promise<Post[]> {
+    // Unfortunately, for array contents we need to get all posts and filter in JS
+    // In a production app, we'd use a proper tags table relation
+    const allPosts = await this.getPosts();
+    return allPosts.filter(post => post.tags && post.tags.includes(tag))
+      .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+  }
+  
+  // Project methods
+  async getProjects(): Promise<Project[]> {
+    return await db.select().from(projects);
+  }
+  
+  async getProjectById(id: number): Promise<Project | undefined> {
+    const [project] = await db.select().from(projects).where(eq(projects.id, id));
+    return project;
+  }
+  
+  async createProject(insertProject: InsertProject): Promise<Project> {
+    const [project] = await db.insert(projects).values({
+      ...insertProject,
+      tags: insertProject.tags ?? null,
+      imageUrl: insertProject.imageUrl ?? null,
+      huggingFaceUrl: insertProject.huggingFaceUrl ?? null,
+      isActive: insertProject.isActive ?? 0
+    }).returning();
+    return project;
+  }
+  
+  async updateProject(id: number, projectUpdate: Partial<InsertProject>): Promise<Project | undefined> {
+    const [updatedProject] = await db.update(projects)
+      .set(projectUpdate)
+      .where(eq(projects.id, id))
+      .returning();
+    return updatedProject;
+  }
+  
+  async deleteProject(id: number): Promise<boolean> {
+    await db.delete(projects).where(eq(projects.id, id));
+    return true;
+  }
+  
+  // Comment methods
+  async getCommentsByPostId(postId: number): Promise<Comment[]> {
+    return await db.select()
+      .from(comments)
+      .where(eq(comments.postId, postId))
+      .orderBy(desc(comments.createdAt));
+  }
+  
+  async createComment(insertComment: InsertComment): Promise<Comment> {
+    const [comment] = await db.insert(comments).values({
+      ...insertComment,
+      parentId: insertComment.parentId ?? null
+    }).returning();
+    return comment;
+  }
+  
+  async deleteComment(id: number): Promise<boolean> {
+    await db.delete(comments).where(eq(comments.id, id));
+    return true;
+  }
+  
+  // Message methods
+  async getMessages(): Promise<Message[]> {
+    return await db.select()
+      .from(messages)
+      .orderBy(desc(messages.createdAt));
+  }
+  
+  async createMessage(insertMessage: InsertMessage): Promise<Message> {
+    const [message] = await db.insert(messages).values(insertMessage).returning();
+    return message;
+  }
+  
+  async deleteMessage(id: number): Promise<boolean> {
+    await db.delete(messages).where(eq(messages.id, id));
+    return true;
+  }
+  
+  // Subscriber methods
+  async getSubscribers(): Promise<Subscriber[]> {
+    return await db.select().from(subscribers);
+  }
+  
+  async createSubscriber(insertSubscriber: InsertSubscriber): Promise<Subscriber> {
+    const [subscriber] = await db.insert(subscribers)
+      .values(insertSubscriber)
+      .returning();
+    return subscriber;
+  }
+  
+  async deleteSubscriber(id: number): Promise<boolean> {
+    await db.delete(subscribers).where(eq(subscribers.id, id));
+    return true;
+  }
+}
 
-// Add sample data
-(async () => {
-  const admin = await storage.getUserByUsername("admin");
-  if (!admin) return;
+// Initialize and export the database storage
+export const storage = new DatabaseStorage();
 
-  // Sample posts
-  const samplePosts = [
-    {
-      title: "Building a Custom Named Entity Recognition Model",
-      slug: "building-custom-ner-model",
-      content: `# Building a Custom Named Entity Recognition Model
+// Initialize database with admin user and sample data
+(async function initializeDatabase() {
+  try {
+    // Check if an admin user already exists
+    const existingAdmin = await storage.getUserByUsername("admin");
+    
+    // If no admin exists, create one with default data
+    if (!existingAdmin) {
+      console.log("Creating admin user and sample data...");
+      
+      // Create admin user - the password will be hashed in auth.ts when first accessed
+      const admin = await storage.createUser({
+        username: "admin",
+        password: "807d4a58d0c5f92d6f2b36b2091143316dea58656f469b13216ad2e11eb36a4f28afe005c0e66d5f8e0e585c034dd457c5f4cebd3c38cdcd01b292ffc882217b.d4b4266cb1e591ceb8e5674a49a1c27d",
+        displayName: "Admin User",
+        bio: "AI enthusiast and developer",
+        email: "admin@example.com",
+        avatarUrl: "/avatar.png"
+      });
+      
+      // Create sample posts
+      const samplePosts = [
+        {
+          title: "Building a Custom Named Entity Recognition Model",
+          slug: "building-custom-ner-model",
+          content: `# Building a Custom Named Entity Recognition Model
 
 In this post, I explore how to build and train a custom Named Entity Recognition (NER) model using the Hugging Face transformers library, specifically fine-tuning BERT for domain-specific entity extraction.
 
@@ -315,16 +530,16 @@ After training, our model achieves an F1 score of 0.92 on the test dataset, whic
 ## Conclusion
 
 Fine-tuning BERT for NER tasks provides excellent results with relatively little effort, especially when you have a good labeled dataset. Try it out and let me know your experiences in the comments below!`,
-      excerpt: "In this post, I explore how to build and train a custom Named Entity Recognition (NER) model using the Hugging Face transformers library, specifically fine-tuning BERT for domain-specific entity extraction.",
-      coverImage: "https://images.unsplash.com/photo-1591453089816-0fbb971b454c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400&q=80",
-      publishedAt: new Date("2023-04-15T12:00:00Z"),
-      authorId: admin.id,
-      tags: ["Machine Learning", "NLP"]
-    },
-    {
-      title: "Deploying My First Text Generation Model",
-      slug: "deploying-text-generation-model",
-      content: `# Deploying My First Text Generation Model
+          excerpt: "In this post, I explore how to build and train a custom Named Entity Recognition (NER) model using the Hugging Face transformers library, specifically fine-tuning BERT for domain-specific entity extraction.",
+          coverImage: "https://images.unsplash.com/photo-1591453089816-0fbb971b454c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400&q=80",
+          publishedAt: new Date(),
+          authorId: admin.id,
+          tags: ["Machine Learning", "NLP"]
+        },
+        {
+          title: "Deploying My First Text Generation Model",
+          slug: "deploying-text-generation-model",
+          content: `# Deploying My First Text Generation Model
 
 I've just deployed my first fine-tuned GPT-2 model on Hugging Face Spaces. Here's how I trained it on a custom dataset and made it available as a public API.
 
@@ -379,136 +594,54 @@ I'm planning to improve the model by:
 - Adding more control over the generation process
 
 Let me know what you think in the comments below!`,
-      excerpt: "I've just deployed my first fine-tuned GPT-2 model on Hugging Face Spaces. Here's how I trained it on a custom dataset and made it available as a public API.",
-      publishedAt: new Date("2023-03-28T14:30:00Z"),
-      authorId: admin.id,
-      tags: ["Hugging Face", "Text Generation"]
-    },
-    {
-      title: "Getting Started with the Hugging Face Transformers Library",
-      slug: "getting-started-with-transformers",
-      content: `# Getting Started with the Hugging Face Transformers Library
-
-A step-by-step guide to working with pre-trained transformer models using the Hugging Face library. Perfect for AI beginners!
-
-## What are Transformers?
-
-Transformers are a type of neural network architecture that has been shown to be very effective for many NLP tasks. The Hugging Face Transformers library provides easy access to pre-trained models that you can use right away.
-
-## Basic Usage
-
-Here's a simple example of how to use a pre-trained sentiment analysis model:
-
-\`\`\`python
-import torch
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
-
-# Load pre-trained model and tokenizer
-tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased-finetuned-sst-2-english")
-model = AutoModelForSequenceClassification.from_pretrained("distilbert-base-uncased-finetuned-sst-2-english")
-
-# Prepare input
-text = "I've been waiting for a HuggingFace course my whole life."
-inputs = tokenizer(text, return_tensors="pt")
-
-# Get prediction
-with torch.no_grad():
-    outputs = model(**inputs)
-    
-predictions = torch.nn.functional.softmax(outputs.logits, dim=-1)
-positive_score = predictions[0, 1].item()
-print(f"Positive sentiment score: {positive_score:.4f}")
-\`\`\`
-
-## Available Tasks
-
-The Transformers library supports many tasks out of the box:
-
-- Text classification
-- Named entity recognition
-- Question answering
-- Text generation
-- Translation
-- Summarization
-- And more!
-
-## Conclusion
-
-Hugging Face's Transformers library makes it incredibly easy to start using state-of-the-art NLP models. Give it a try and let me know your thoughts in the comments!`,
-      excerpt: "A step-by-step guide to working with pre-trained transformer models using the Hugging Face library. Perfect for AI beginners!",
-      coverImage: "https://images.unsplash.com/photo-1550837368-6594235de85c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=300&q=80",
-      publishedAt: new Date("2023-03-12T09:15:00Z"),
-      authorId: admin.id,
-      tags: ["Python", "Tutorial"]
+          excerpt: "I've just deployed my first fine-tuned GPT-2 model on Hugging Face Spaces. Here's how I trained it on a custom dataset and made it available as a public API.",
+          publishedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
+          authorId: admin.id,
+          tags: ["Hugging Face", "Text Generation"]
+        }
+      ];
+      
+      for (const postData of samplePosts) {
+        await storage.createPost(postData);
+      }
+      
+      // Create sample projects
+      const sampleProjects = [
+        {
+          title: "Image Captioning",
+          description: "An AI model that generates descriptive captions for uploaded images using a vision-language model.",
+          imageUrl: "https://images.unsplash.com/photo-1592424002053-21f369ad7fdb?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=300&q=80",
+          huggingFaceUrl: "https://huggingface.co/spaces/demo/image-captioning",
+          tags: ["Computer Vision", "BLIP"],
+          isActive: 1
+        },
+        {
+          title: "Sentiment Analyzer",
+          description: "A tool that analyzes the sentiment of text inputs, providing polarity scores and emotional content detection.",
+          imageUrl: "https://images.unsplash.com/photo-1597589827703-f4b68eafa0ce?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=300&q=80",
+          huggingFaceUrl: "https://huggingface.co/spaces/demo/sentiment-analysis",
+          tags: ["NLP", "RoBERTa"],
+          isActive: 1
+        }
+      ];
+      
+      for (const projectData of sampleProjects) {
+        await storage.createProject(projectData);
+      }
+      
+      // Create sample comments
+      await storage.createComment({
+        name: "Sarah Chen",
+        content: "I really enjoyed your post on Named Entity Recognition! I've been trying to implement something similar for my research project. Do you have any tips for handling domain-specific entities?",
+        postId: 1,
+        createdAt: new Date()
+      });
+      
+      console.log("Database initialized with sample data");
+    } else {
+      console.log("Database already initialized with admin user");
     }
-  ];
-
-  for (const postData of samplePosts) {
-    await storage.createPost(postData);
-  }
-
-  // Sample projects
-  const sampleProjects = [
-    {
-      title: "Image Captioning",
-      description: "An AI model that generates descriptive captions for uploaded images using a vision-language model.",
-      imageUrl: "https://images.unsplash.com/photo-1592424002053-21f369ad7fdb?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=300&q=80",
-      huggingFaceUrl: "https://huggingface.co/spaces/demo/image-captioning",
-      tags: ["Computer Vision", "BLIP"],
-      isActive: 1
-    },
-    {
-      title: "Sentiment Analyzer",
-      description: "A tool that analyzes the sentiment of text inputs, providing polarity scores and emotional content detection.",
-      imageUrl: "https://images.unsplash.com/photo-1597589827703-f4b68eafa0ce?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=300&q=80",
-      huggingFaceUrl: "https://huggingface.co/spaces/demo/sentiment-analysis",
-      tags: ["NLP", "RoBERTa"],
-      isActive: 1
-    },
-    {
-      title: "Text-to-Image",
-      description: "Generate images from text descriptions using a fine-tuned Stable Diffusion model specialized in artistic styles.",
-      imageUrl: "https://images.unsplash.com/photo-1550837368-6594235de85c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=300&q=80",
-      huggingFaceUrl: "https://huggingface.co/spaces/demo/text-to-image",
-      tags: ["Generative AI", "Stable Diffusion"],
-      isActive: 1
-    }
-  ];
-
-  for (const projectData of sampleProjects) {
-    await storage.createProject(projectData);
-  }
-
-  // Sample comments
-  const sampleComments = [
-    {
-      name: "Sarah Chen",
-      content: "I really enjoyed your post on Named Entity Recognition! I've been trying to implement something similar for my research project. Do you have any tips for handling domain-specific entities?",
-      postId: 1,
-      createdAt: new Date("2023-04-13T18:30:00Z")
-    },
-    {
-      name: "Miguel Santos",
-      content: "Great blog! I'm wondering how you're handling the hosting of these Hugging Face demos within your personal website. Are you using iframes or some kind of API integration?",
-      postId: 2,
-      createdAt: new Date("2023-03-24T10:45:00Z")
-    },
-    {
-      name: "Admin User",
-      content: "Thanks Miguel! I'm using Hugging Face's Inference API for some models and embedding the Spaces using iframes for the more interactive demos. I'll write a detailed post about the integration process soon.",
-      postId: 2,
-      parentId: 2,
-      createdAt: new Date("2023-03-25T14:20:00Z")
-    },
-    {
-      name: "Alex Johnson",
-      content: "I tried your Sentiment Analyzer tool and it's working great! One suggestion: could you add support for analyzing sentiment in multiple languages?",
-      postId: 3,
-      createdAt: new Date("2023-03-05T09:10:00Z")
-    }
-  ];
-
-  for (const commentData of sampleComments) {
-    await storage.createComment(commentData);
+  } catch (error) {
+    console.error("Error initializing database:", error);
   }
 })();
