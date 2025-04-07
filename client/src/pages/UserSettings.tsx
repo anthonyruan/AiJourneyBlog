@@ -28,6 +28,7 @@ const userSettingsSchema = z.object({
   confirmPassword: z.string().optional(),
   displayName: z.string().optional(),
   bio: z.string().optional(),
+  avatarUrl: z.string().url("请提供有效的图片URL").optional(),
 }).refine(data => {
   // If password is set, confirmPassword must match
   if (data.password && data.password !== data.confirmPassword) {
@@ -62,6 +63,7 @@ export default function UserSettings() {
       confirmPassword: "",
       displayName: "",
       bio: "",
+      avatarUrl: "",
     },
   });
 
@@ -77,6 +79,7 @@ export default function UserSettings() {
         username: user.username,
         displayName: user.displayName || "",
         bio: user.bio || "",
+        avatarUrl: user.avatarUrl || "",
       });
     }
   }, [user, form]);
@@ -111,6 +114,10 @@ export default function UserSettings() {
       
       if (data.bio !== undefined && data.bio !== user.bio) {
         updatedFields.bio = data.bio;
+      }
+      
+      if (data.avatarUrl !== undefined && data.avatarUrl !== user.avatarUrl) {
+        updatedFields.avatarUrl = data.avatarUrl;
       }
       
       if (data.password) {
@@ -225,6 +232,42 @@ export default function UserSettings() {
                       <Input {...field} placeholder="Brief description about yourself" />
                     </FormControl>
                     <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              {/* Avatar URL */}
+              <FormField
+                control={form.control}
+                name="avatarUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Avatar URL</FormLabel>
+                    <div className="flex items-start gap-4">
+                      <div className="flex-1">
+                        <FormControl>
+                          <Input {...field} placeholder="https://example.com/your-avatar.jpg" />
+                        </FormControl>
+                        <p className="text-xs mt-1 text-gray-500">
+                          提供一个公开的图片URL作为您的头像（例如：imgur或其他图片托管服务）
+                        </p>
+                        <FormMessage />
+                      </div>
+                      {field.value && (
+                        <div className="flex-shrink-0">
+                          <img 
+                            src={field.value} 
+                            alt="Avatar Preview" 
+                            className="h-16 w-16 rounded-full object-cover"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.onerror = null;
+                              target.src = 'https://via.placeholder.com/64?text=A';
+                            }}
+                          />
+                        </div>
+                      )}
+                    </div>
                   </FormItem>
                 )}
               />

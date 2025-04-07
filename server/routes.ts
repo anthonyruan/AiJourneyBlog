@@ -48,12 +48,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           id: author.id,
           username: author.username,
           displayName: author.displayName || "I'm AI Man",
-          bio: author.bio || "AI Researcher & Developer"
+          bio: author.bio || "AI Researcher & Developer",
+          avatarUrl: author.avatarUrl || null
         } : {
           id: post.authorId,
           username: "anthonyruan",
           displayName: "I'm AI Man",
-          bio: "AI Researcher & Developer"
+          bio: "AI Researcher & Developer",
+          avatarUrl: null
         }
       };
       
