@@ -36,9 +36,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     data: user,
     error,
     isLoading,
+    refetch,
   } = useQuery<User | null, Error>({
     queryKey: ["/api/user"],
     queryFn: getQueryFn({ on401: "returnNull" }),
+    // 增加重试次数，处理会话初始化延迟的情况
+    retry: 3,
+    retryDelay: 1000,
+    // 每次组件挂载或窗口获得焦点时重新验证会话
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    // 会话状态相对稳定，可以较长时间缓存
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
   // Check if the user is an admin based on their role
@@ -57,8 +66,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // 直接设置用户数据到缓存中，确保登录状态立即可见
       queryClient.setQueryData(["/api/user"], data);
       
-      // 强制刷新查询以确保客户端数据与服务器同步
-      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      // 使用refetch而不是invalidateQueries，确保获取最新的用户状态
+      refetch();
       
       const isUserAdmin = data.role === 'admin';
       toast({
@@ -66,10 +75,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         description: isUserAdmin ? "You are now logged in as administrator" : "You are now logged in",
       });
       
-      // 更长的延迟确保会话已完全设置好
+      // 使用正常的路由导航而不是页面刷新
+      // 减少延迟，因为我们已经改进了服务器端会话处理
       setTimeout(() => {
         window.location.href = "/";
-      }, 1000);
+      }, 500);
     },
     onError: (error: Error) => {
       toast({
@@ -93,18 +103,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // 直接设置用户数据到缓存中
       queryClient.setQueryData(["/api/user"], data);
       
-      // 强制刷新查询以确保客户端数据与服务器同步
-      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      // 使用refetch而不是invalidateQueries
+      refetch();
       
       toast({
         title: "Registration successful",
         description: "You are now logged in",
       });
       
-      // 更长的延迟确保会话已完全设置好
+      // 减少延迟，因为我们已经改进了服务器端会话处理
       setTimeout(() => {
         window.location.href = "/";
-      }, 1000);
+      }, 500);
     },
     onError: (error: Error) => {
       toast({
@@ -127,18 +137,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // 直接将用户数据设为null
       queryClient.setQueryData(["/api/user"], null);
       
-      // 强制刷新查询以确保客户端数据与服务器同步
-      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      // 使用refetch而不是invalidateQueries
+      refetch();
       
       toast({
         title: "Logout successful",
         description: "You have been logged out",
       });
       
-      // 强制刷新页面，确保在所有浏览器中都能正确清除状态
+      // 刷新页面，确保所有组件刷新并清除状态
+      // 但减少延迟
       setTimeout(() => {
         window.location.href = "/";
-      }, 1000);
+      }, 500);
     },
     onError: (error: Error) => {
       toast({
