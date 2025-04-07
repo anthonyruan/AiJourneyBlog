@@ -8,7 +8,8 @@ import {
   insertCommentSchema,
   insertMessageSchema,
   insertSubscriberSchema,
-  aboutPageSchema
+  aboutPageSchema,
+  updateUserSchema
 } from "@shared/schema";
 import { z } from "zod";
 import { fromZodError } from "zod-validation-error";

@@ -6,13 +6,13 @@ import {
   SheetContent, 
   SheetTrigger 
 } from "@/components/ui/sheet";
-import { LogIn, LogOut, Menu, Search, X } from "lucide-react";
+import { LogIn, LogOut, Menu, Search, Settings, X } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 
 export default function Header() {
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { isAdmin, logoutMutation } = useAuth();
+  const { user, isAdmin, logoutMutation } = useAuth();
 
   const isActive = (path: string) => {
     return location === path ? "text-primary-600" : "text-gray-700 hover:text-primary-600";
@@ -24,7 +24,7 @@ export default function Header() {
         <div className="flex justify-between items-center py-2 md:justify-start md:space-x-10">
           <div className="flex justify-start lg:w-0 lg:flex-1">
             <Link href="/" className="flex items-center">
-              <span className="font-heading font-bold text-2xl text-primary-600">I'm AI Man</span>
+              <span className="font-heading font-bold text-2xl text-primary-600">anthonyruan</span>
             </Link>
           </div>
           
@@ -40,7 +40,7 @@ export default function Header() {
               <SheetContent side="right" className="py-6 px-5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
-                    <span className="font-heading font-bold text-xl text-primary-600">I'm AI Man</span>
+                    <span className="font-heading font-bold text-xl text-primary-600">anthonyruan</span>
                   </div>
                   <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
                     <X className="h-5 w-5 text-gray-500" />
@@ -80,6 +80,14 @@ export default function Header() {
                         className="flex items-center text-gray-700 hover:text-primary-600"
                       >
                         <span>New Project</span>
+                      </Link>
+                      <Link 
+                        href="/settings" 
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center text-gray-700 hover:text-primary-600"
+                      >
+                        <Settings className="h-4 w-4 mr-1" />
+                        <span>Settings</span>
                       </Link>
                       <button
                         onClick={() => {
@@ -124,6 +132,13 @@ export default function Header() {
                   className="flex items-center font-medium text-gray-700 hover:text-primary-600"
                 >
                   <span>New Project</span>
+                </Link>
+                <Link 
+                  href="/settings" 
+                  className="flex items-center font-medium text-gray-700 hover:text-primary-600"
+                >
+                  <Settings className="h-4 w-4 mr-1" />
+                  <span>Settings</span>
                 </Link>
                 <Button 
                   variant="ghost" 

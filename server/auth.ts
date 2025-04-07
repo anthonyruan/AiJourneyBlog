@@ -17,13 +17,13 @@ declare global {
 const scryptAsync = promisify(scrypt);
 const MemoryStore = createMemoryStore(session);
 
-async function hashPassword(password: string) {
+export async function hashPassword(password: string) {
   const salt = randomBytes(16).toString("hex");
   const buf = (await scryptAsync(password, salt, 64)) as Buffer;
   return `${buf.toString("hex")}.${salt}`;
 }
 
-async function comparePasswords(supplied: string, stored: string) {
+export async function comparePasswords(supplied: string, stored: string) {
   try {
     const [hashed, salt] = stored.split(".");
     
@@ -117,5 +117,63 @@ export function setupAuth(app: Express) {
   app.get("/api/user", (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
     res.json(req.user);
+  });
+  
+  app.put("/api/user/:id", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    
+    const userId = parseInt(req.params.id);
+    
+    // Check if user is updating their own profile
+    if (req.user!.id !== userId) {
+      return res.status(403).send("You can only update your own profile");
+    }
+    
+    const updateData = req.body;
+    
+    // If user wants to change password
+    if (updateData.password) {
+      // Verify current password if provided
+      if (updateData.currentPassword) {
+        const isPasswordValid = await comparePasswords(
+          updateData.currentPassword,
+          req.user!.password
+        );
+        
+        if (!isPasswordValid) {
+          return res.status(400).send("Current password is incorrect");
+        }
+        
+        // Hash the new password
+        updateData.password = await hashPassword(updateData.password);
+      } else {
+        // Current password needed to change password
+        return res.status(400).send("Current password is required to change password");
+      }
+    }
+    
+    // Remove currentPassword from update data
+    delete updateData.currentPassword;
+    
+    try {
+      const updatedUser = await storage.updateUser(userId, updateData);
+      
+      if (!updatedUser) {
+        return res.status(404).send("User not found");
+      }
+      
+      // Update the session
+      req.login(updatedUser, (err) => {
+        if (err) {
+          console.error("Error updating user session:", err);
+          return res.status(500).send("Error updating user session");
+        }
+        
+        res.json(updatedUser);
+      });
+    } catch (err) {
+      console.error("Error updating user:", err);
+      res.status(500).send("Error updating user");
+    }
   });
 }

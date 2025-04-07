@@ -22,6 +22,17 @@ export const insertUserSchema = createInsertSchema(users).pick({
   email: true,
 });
 
+// Schema for updating user profile
+export const updateUserSchema = z.object({
+  username: z.string().min(3).optional(),
+  password: z.string().min(6).optional(),
+  currentPassword: z.string().optional(),
+  displayName: z.string().optional(),
+  bio: z.string().optional(),
+  avatarUrl: z.string().optional(),
+  email: z.string().email().optional(),
+});
+
 // Blog Posts schema
 export const posts = pgTable("posts", {
   id: serial("id").primaryKey(),
@@ -98,6 +109,7 @@ export const insertSubscriberSchema = createInsertSchema(subscribers).omit({
 // Type definitions
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
+export type UpdateUser = z.infer<typeof updateUserSchema>;
 
 export type Post = typeof posts.$inferSelect;
 export type InsertPost = z.infer<typeof insertPostSchema>;
