@@ -31,7 +31,7 @@ export default function TimelinePost({ post, commentsCount = 0, index }: Timelin
             <img 
               src={post.coverImage}
               alt={post.title} 
-              className="w-full h-auto max-h-96 object-contain"
+              className="w-full h-52 object-cover"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 target.onerror = null; // Prevent infinite loop
