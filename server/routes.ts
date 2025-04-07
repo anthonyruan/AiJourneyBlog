@@ -252,6 +252,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch comments" });
     }
   });
+  
+  // Get comment counts for all posts
+  apiRouter.get("/comments/counts", async (_req: Request, res: Response) => {
+    try {
+      const posts = await storage.getPosts();
+      const commentCounts = await Promise.all(
+        posts.map(async (post) => {
+          const comments = await storage.getCommentsByPostId(post.id);
+          return {
+            postId: post.id,
+            count: comments.length
+          };
+        })
+      );
+      
+      res.json(commentCounts);
+    } catch (error) {
+      console.error("Error fetching comment counts:", error);
+      res.status(500).json({ message: "Failed to fetch comment counts" });
+    }
+  });
 
   apiRouter.post("/comments", async (req: Request, res: Response) => {
     try {

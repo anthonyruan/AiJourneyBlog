@@ -10,6 +10,11 @@ export default function Blog() {
   const { data: posts = [], isLoading: isLoadingPosts } = useQuery<Post[]>({
     queryKey: ['/api/posts'],
   });
+  
+  // Get comment counts
+  const { data: commentCounts = [] } = useQuery<{postId: number, count: number}[]>({
+    queryKey: ['/api/comments/counts'],
+  });
 
   return (
     <div className="py-12 bg-white">
@@ -42,7 +47,7 @@ export default function Blog() {
                 <TimelinePost
                   key={post.id}
                   post={post}
-                  commentsCount={3} // In a real app, get actual count from DB
+                  commentsCount={commentCounts.find(c => c.postId === post.id)?.count || 0}
                   index={index} // Pass index to determine left/right layout
                 />
               ))
