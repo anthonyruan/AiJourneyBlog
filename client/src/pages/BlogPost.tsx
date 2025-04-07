@@ -11,8 +11,9 @@ import { Button } from "@/components/ui/button";
 import { Edit, ArrowLeft } from "lucide-react";
 import { Post } from "@shared/schema";
 import { useAuth } from "@/hooks/use-auth";
+import { apiRequest } from "@/lib/queryClient";
 
-// 确保替换所有中文注释为英文，避免编码问题
+// Replace Chinese comments with English to avoid encoding issues
 
 export default function BlogPost() {
   const params = useParams<{ slug: string }>();
@@ -22,6 +23,11 @@ export default function BlogPost() {
   // Get post data
   const { data: post, isLoading, isError } = useQuery<Post>({
     queryKey: [`/api/posts/${params.slug}`],
+    queryFn: async () => {
+      const res = await apiRequest("GET", `/api/posts/${params.slug}`);
+      if (!res.ok) throw new Error("Failed to fetch post");
+      return res.json();
+    },
   });
 
   useEffect(() => {
