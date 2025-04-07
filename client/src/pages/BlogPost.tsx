@@ -18,7 +18,7 @@ import { apiRequest } from "@/lib/queryClient";
 export default function BlogPost() {
   const params = useParams<{ slug: string }>();
   const [, setLocation] = useLocation();
-  const { isAdmin } = useAuth();
+  const { isAdmin, user } = useAuth();
 
   // Get post data
   const { data: post, isLoading, isError } = useQuery<Post>({
@@ -152,7 +152,7 @@ export default function BlogPost() {
                     </svg>
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">Admin User</p>
+                    <p className="font-medium text-gray-900">{user?.username || "Guest"}</p>
                     <p className="text-sm text-gray-600">AI Researcher & Developer</p>
                   </div>
                 </div>
