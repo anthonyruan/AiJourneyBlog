@@ -80,14 +80,17 @@ export default function Home() {
             {isLoadingPosts ? (
               <p className="text-center text-gray-500">Loading posts...</p>
             ) : posts.length > 0 ? (
-              posts.slice(0, 3).map((post, index) => (
-                <TimelinePost 
-                  key={post.id} 
-                  post={post} 
-                  commentsCount={3} // In a real app, get actual count from DB
-                  index={index} // Pass index to determine left/right layout
-                />
-              ))
+              posts
+                .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
+                .slice(0, 6) // Show more posts on the homepage
+                .map((post, index) => (
+                  <TimelinePost 
+                    key={post.id} 
+                    post={post} 
+                    commentsCount={3} // In a real app, get actual count from DB
+                    index={index} // Pass index to determine left/right layout
+                  />
+                ))
             ) : (
               <p className="text-center text-gray-500">No posts found</p>
             )}
