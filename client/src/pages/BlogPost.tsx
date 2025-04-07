@@ -132,8 +132,8 @@ export default function BlogPost() {
                 
                 {/* Insert Hugging Face Embed if available */}
                 {hasHuggingFaceModel && (
-                  <div className="my-8 border border-gray-200 rounded-lg p-4">
-                    <h3 className="text-xl font-bold mb-4">{post.huggingFaceModelTitle}</h3>
+                  <div className="my-10 border-2 border-blue-200 rounded-xl p-6 bg-blue-50/50 shadow-lg">
+                    <h3 className="text-2xl font-bold mb-6 text-center text-blue-800">{post.huggingFaceModelTitle}</h3>
                     <HuggingFaceEmbed
                       title={post.huggingFaceModelTitle || ""}
                       modelUrl={post.huggingFaceModelUrl || ""}
