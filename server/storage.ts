@@ -111,7 +111,8 @@ export class MemStorage implements IStorage {
       displayName: "Admin User",
       bio: "AI enthusiast and developer",
       email: "admin@example.com",
-      avatarUrl: "/avatar.png"
+      avatarUrl: "/avatar.png",
+      role: "admin" // 设置为管理员角色
     });
     // 已经手动添加了一个管理员用户，所以ID从2开始
     this.userCurrentId = 2;
@@ -137,7 +138,8 @@ export class MemStorage implements IStorage {
       displayName: insertUser.displayName ?? null,
       bio: insertUser.bio ?? null,
       avatarUrl: insertUser.avatarUrl ?? null,
-      email: insertUser.email ?? null
+      email: insertUser.email ?? null,
+      role: insertUser.role ?? "user" // 默认为普通用户
     };
     this.users.set(id, user);
     return user;
@@ -349,7 +351,8 @@ export class DatabaseStorage implements IStorage {
       displayName: insertUser.displayName ?? null,
       bio: insertUser.bio ?? null,
       avatarUrl: insertUser.avatarUrl ?? null,
-      email: insertUser.email ?? null
+      email: insertUser.email ?? null,
+      role: insertUser.role ?? "user" // 默认为普通用户
     }).returning();
     return user;
   }
@@ -638,7 +641,8 @@ export const storage = new DatabaseStorage();
         displayName: "Admin User",
         bio: "AI enthusiast and developer",
         email: "admin@example.com",
-        avatarUrl: "/avatar.png"
+        avatarUrl: "/avatar.png",
+        role: "admin" // 设置为管理员角色
       });
       
       // Create sample posts

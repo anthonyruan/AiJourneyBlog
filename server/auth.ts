@@ -48,6 +48,11 @@ export async function comparePasswords(supplied: string, stored: string) {
   }
 }
 
+// 检查用户是否为管理员
+export function isAdmin(user: SelectUser | undefined): boolean {
+  return !!user && user.role === 'admin';
+}
+
 export function setupAuth(app: Express) {
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || "ai-man-blog-secret-key",

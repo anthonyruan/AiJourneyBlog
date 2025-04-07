@@ -1,7 +1,7 @@
 import express, { type Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth } from "./auth";
+import { setupAuth, isAdmin } from "./auth";
 import { 
   insertPostSchema,
   insertProjectSchema,
@@ -68,6 +68,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   apiRouter.post("/posts", async (req: Request, res: Response) => {
     try {
+      // Check authentication - only authenticated users should create posts
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      // Only admin users can create posts
+      if (!isAdmin(req.user)) {
+        return res.status(403).json({ message: "Forbidden - Only administrators can create posts" });
+      }
+      
       // 手动处理publishedAt字段的日期转换
       const { publishedAt, ...rest } = req.body;
       
@@ -97,6 +107,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   apiRouter.put("/posts/:id", async (req: Request, res: Response) => {
     try {
+      // Check authentication - only authenticated users should update posts
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      // Only admin users can update posts
+      if (!isAdmin(req.user)) {
+        return res.status(403).json({ message: "Forbidden - Only administrators can update posts" });
+      }
+      
       const id = parseInt(req.params.id);
       
       // 手动处理publishedAt字段的日期转换
@@ -142,6 +162,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   apiRouter.delete("/posts/:id", async (req: Request, res: Response) => {
     try {
+      // Check authentication - only authenticated users should delete posts
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      // Only admin users can delete posts
+      if (!isAdmin(req.user)) {
+        return res.status(403).json({ message: "Forbidden - Only administrators can delete posts" });
+      }
+      
       const id = parseInt(req.params.id);
       const success = await storage.deletePost(id);
       if (!success) {
@@ -187,6 +217,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   apiRouter.post("/projects", async (req: Request, res: Response) => {
     try {
+      // Check authentication - only authenticated users should create projects
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      // Only admin users can create projects
+      if (!isAdmin(req.user)) {
+        return res.status(403).json({ message: "Forbidden - Only administrators can create projects" });
+      }
+      
       const validatedData = insertProjectSchema.parse(req.body);
       const project = await storage.createProject(validatedData);
       res.status(201).json(project);
@@ -203,6 +243,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   apiRouter.put("/projects/:id", async (req: Request, res: Response) => {
     try {
+      // Check authentication - only authenticated users should update projects
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      // Only admin users can update projects
+      if (!isAdmin(req.user)) {
+        return res.status(403).json({ message: "Forbidden - Only administrators can update projects" });
+      }
+      
       const id = parseInt(req.params.id);
       // 由于schema限制，需要手动创建一个可选字段的schema
       const validatedData = z.object({
@@ -231,6 +281,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   apiRouter.delete("/projects/:id", async (req: Request, res: Response) => {
     try {
+      // Check authentication - only authenticated users should delete projects
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      // Only admin users can delete projects
+      if (!isAdmin(req.user)) {
+        return res.status(403).json({ message: "Forbidden - Only administrators can delete projects" });
+      }
+      
       const id = parseInt(req.params.id);
       const success = await storage.deleteProject(id);
       if (!success) {
@@ -295,6 +355,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   apiRouter.delete("/comments/:id", async (req: Request, res: Response) => {
     try {
+      // Check authentication - only authenticated users should delete comments
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      // Only admin users can delete comments
+      if (!isAdmin(req.user)) {
+        return res.status(403).json({ message: "Forbidden - Only administrators can delete comments" });
+      }
+      
       const id = parseInt(req.params.id);
       const success = await storage.deleteComment(id);
       if (!success) {
@@ -302,6 +372,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       res.status(204).end();
     } catch (error) {
+      console.error("Error deleting comment:", error);
       res.status(500).json({ message: "Failed to delete comment" });
     }
   });
@@ -362,6 +433,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check authentication - only admin should update the about page
       if (!req.isAuthenticated()) {
         return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      // Only admin users can update about page
+      if (!isAdmin(req.user)) {
+        return res.status(403).json({ message: "Forbidden - Only administrators can update the about page" });
       }
       
       // Validate about page data

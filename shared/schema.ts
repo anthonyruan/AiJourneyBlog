@@ -2,7 +2,7 @@ import { pgTable, text, serial, integer, timestamp, json, jsonb } from "drizzle-
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Users schema - keeping the existing one
+// Users schema with role field for admin permissions
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
@@ -11,6 +11,7 @@ export const users = pgTable("users", {
   bio: text("bio"),
   avatarUrl: text("avatar_url"),
   email: text("email"),
+  role: text("role").default("user"),  // Values: "user" or "admin"
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
@@ -20,6 +21,7 @@ export const insertUserSchema = createInsertSchema(users).pick({
   bio: true,
   avatarUrl: true,
   email: true,
+  role: true,
 });
 
 // Schema for updating user profile
@@ -31,6 +33,7 @@ export const updateUserSchema = z.object({
   bio: z.string().optional(),
   avatarUrl: z.string().optional(),
   email: z.string().email().optional(),
+  role: z.enum(["user", "admin"]).optional(),
 });
 
 // Blog Posts schema

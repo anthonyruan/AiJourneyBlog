@@ -6,6 +6,16 @@ import { formatDistanceToNow } from "date-fns";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
+import { Trash2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 import {
   Form,
@@ -34,7 +44,10 @@ interface CommentSectionProps {
 export default function CommentSection({ postId }: CommentSectionProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { isAdmin } = useAuth();
   const [replyToId, setReplyToId] = useState<number | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [commentToDelete, setCommentToDelete] = useState<number | null>(null);
 
   const { data: comments = [], isLoading } = useQuery({
     queryKey: [`/api/comments/post/${postId}`],
@@ -82,6 +95,48 @@ export default function CommentSection({ postId }: CommentSectionProps) {
 
   const onSubmit = (data: CommentFormValues) => {
     commentMutation.mutate(data);
+  };
+  
+  // Delete comment mutation
+  const deleteCommentMutation = useMutation({
+    mutationFn: async (commentId: number) => {
+      const resp = await apiRequest("DELETE", `/api/comments/${commentId}`);
+      if (!resp.ok) {
+        throw new Error("Failed to delete comment");
+      }
+      return true;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/comments/post/${postId}`] });
+      // Also invalidate the comment counts to update the UI
+      queryClient.invalidateQueries({ queryKey: ['/api/comments/counts'] });
+      toast({
+        title: "Comment deleted",
+        description: "The comment has been deleted successfully",
+      });
+      setDeleteDialogOpen(false);
+      setCommentToDelete(null);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to delete comment: ${error}`,
+        variant: "destructive",
+      });
+    },
+  });
+  
+  // Open delete confirmation dialog
+  const handleDeleteComment = (commentId: number) => {
+    setCommentToDelete(commentId);
+    setDeleteDialogOpen(true);
+  };
+  
+  // Confirm delete action
+  const confirmDeleteComment = () => {
+    if (commentToDelete) {
+      deleteCommentMutation.mutate(commentToDelete);
+    }
   };
 
   // Function to organize comments into a hierarchy with replies
@@ -131,9 +186,21 @@ export default function CommentSection({ postId }: CommentSectionProps) {
       <div className="flex-grow">
         <div className="flex items-center justify-between">
           <h4 className="text-sm font-medium text-gray-900">{comment.name}</h4>
-          <p className="text-sm text-gray-500">
-            {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
-          </p>
+          <div className="flex items-center">
+            <p className="text-sm text-gray-500 mr-2">
+              {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
+            </p>
+            {isAdmin && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="p-0 h-auto text-sm text-red-600 hover:text-red-800"
+                onClick={() => handleDeleteComment(comment.id)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
         </div>
         <div className="mt-1 text-sm text-gray-600">
           <p>{comment.content}</p>
@@ -156,9 +223,21 @@ export default function CommentSection({ postId }: CommentSectionProps) {
               <div key={reply.id} className="ml-6 border-l-2 border-gray-100 pl-4">
                 <div className="flex items-center justify-between">
                   <h4 className="text-sm font-medium text-gray-900">{reply.name}</h4>
-                  <p className="text-sm text-gray-500">
-                    {formatDistanceToNow(new Date(reply.createdAt), { addSuffix: true })}
-                  </p>
+                  <div className="flex items-center">
+                    <p className="text-sm text-gray-500 mr-2">
+                      {formatDistanceToNow(new Date(reply.createdAt), { addSuffix: true })}
+                    </p>
+                    {isAdmin && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="p-0 h-auto text-sm text-red-600 hover:text-red-800"
+                        onClick={() => handleDeleteComment(reply.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
                 <div className="mt-1 text-sm text-gray-600">
                   <p>{reply.content}</p>
@@ -273,6 +352,33 @@ export default function CommentSection({ postId }: CommentSectionProps) {
           </div>
         </div>
       </div>
+
+      {/* Delete confirmation dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Comment</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this comment? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex space-x-2 justify-end">
+            <Button 
+              variant="outline" 
+              onClick={() => setDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={confirmDeleteComment}
+              disabled={deleteCommentMutation.isPending}
+            >
+              {deleteCommentMutation.isPending ? "Deleting..." : "Delete Comment"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }

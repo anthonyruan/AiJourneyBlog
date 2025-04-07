@@ -41,8 +41,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryFn: getQueryFn({ on401: "returnNull" }),
   });
 
-  // Check if the user is an admin (in our simple case, any logged in user is admin)
-  const isAdmin = !!user;
+  // Check if the user is an admin based on their role
+  const isAdmin = !!user && user.role === 'admin';
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {
@@ -56,9 +56,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onSuccess: (data) => {
       // 直接设置用户数据到缓存中，确保登录状态立即可见
       queryClient.setQueryData(["/api/user"], data);
+      const isUserAdmin = data.role === 'admin';
       toast({
         title: "Login successful",
-        description: "You are now logged in as admin",
+        description: isUserAdmin ? "You are now logged in as administrator" : "You are now logged in",
       });
       
       // 短暂延迟后刷新页面，确保所有浏览器都能正确加载用户状态
@@ -68,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onError: (error: Error) => {
       toast({
-        title: "登录失败",
+        title: "Login failed",
         description: error.message,
         variant: "destructive",
       });
