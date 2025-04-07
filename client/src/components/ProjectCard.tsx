@@ -1,18 +1,29 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Edit } from "lucide-react";
 import { Project } from "@shared/schema";
+import { useAuth } from "@/hooks/use-auth";
+import { useLocation } from "wouter";
 
 interface ProjectCardProps {
   project: Project;
 }
 
 export default function ProjectCard({ project }: ProjectCardProps) {
+  const { isAdmin } = useAuth();
+  const [_, setLocation] = useLocation();
+  
   // Function to open the Hugging Face URL
   const openHuggingFaceUrl = () => {
     if (project.huggingFaceUrl) {
       window.open(project.huggingFaceUrl, '_blank', 'noopener,noreferrer');
     }
+  };
+  
+  // Function to navigate to edit project page
+  const goToEditProject = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent the card click event
+    setLocation(`/edit-project/${project.id}`);
   };
 
   return (
@@ -52,6 +63,20 @@ export default function ProjectCard({ project }: ProjectCardProps) {
             ))}
           </div>
         )}
+        {/* Admin Edit button */}
+        {isAdmin && (
+          <div className="mb-4">
+            <button 
+              onClick={goToEditProject}
+              className="inline-flex items-center justify-center w-full px-4 py-2 mb-2 bg-amber-600 hover:bg-amber-700 text-white rounded-md font-medium text-sm"
+            >
+              <Edit className="h-4 w-4 mr-2" />
+              Edit Project
+            </button>
+          </div>
+        )}
+        
+        {/* Hugging Face button */}
         {project.huggingFaceUrl && (
           <button 
             onClick={(e) => {
