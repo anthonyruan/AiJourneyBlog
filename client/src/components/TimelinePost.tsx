@@ -14,7 +14,7 @@ export default function TimelinePost({ post, commentsCount = 0, index }: Timelin
   const formattedDate = formatDistanceToNow(new Date(post.publishedAt), { addSuffix: true });
   
   return (
-    <div className="mb-16 relative max-w-6xl mx-auto">
+    <div className="mb-20 relative max-w-7xl mx-auto">
       {/* Content card - now in a cleaner, unified layout without timeline, with increased width */}
       <div className="w-full md:w-11/12 lg:w-10/12 mx-auto">
         <div className="flex items-center justify-center mb-2">
@@ -31,7 +31,7 @@ export default function TimelinePost({ post, commentsCount = 0, index }: Timelin
             <img 
               src={post.coverImage}
               alt={post.title} 
-              className="w-full h-80 object-cover border-b border-gray-100"
+              className="w-full h-96 object-cover border-b border-gray-100"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 target.onerror = null; // Prevent infinite loop
@@ -39,7 +39,7 @@ export default function TimelinePost({ post, commentsCount = 0, index }: Timelin
               }}
             />
           )}
-          <div className="p-5">
+          <div className="p-6">
             {post.tags && post.tags.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-3">
                 {post.tags.map((tag, index) => (
@@ -49,12 +49,12 @@ export default function TimelinePost({ post, commentsCount = 0, index }: Timelin
                 ))}
               </div>
             )}
-            <h3 className="text-lg font-bold text-gray-900 font-heading mb-2">
+            <h3 className="text-xl font-bold text-gray-900 font-heading mb-3">
               <Link href={`/blog/${post.slug}`} className="hover:text-primary-600 transition-colors">
                 {post.title}
               </Link>
             </h3>
-            <p className="text-gray-600 mb-4 text-sm">
+            <p className="text-gray-600 mb-4 text-base">
               {post.excerpt}
             </p>
             <div className="flex justify-between items-center">
