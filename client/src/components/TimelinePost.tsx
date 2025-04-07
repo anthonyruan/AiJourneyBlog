@@ -26,12 +26,12 @@ export default function TimelinePost({ post, commentsCount = 0, index }: Timelin
           <div className="text-sm text-gray-500">{formattedDate}</div>
         </div>
         
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300">
+        <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300">
           {post.coverImage && (
             <img 
               src={post.coverImage}
               alt={post.title} 
-              className="w-full h-96 object-cover border-b border-gray-100"
+              className="w-full h-[32rem] object-cover border-b-2 border-gray-200"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 target.onerror = null; // Prevent infinite loop
