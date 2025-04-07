@@ -13,6 +13,7 @@ import { db } from "./db";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import createMemoryStore from "memorystore";
+import pg from 'pg';
 
 export interface IStorage {
   sessionStore: session.Store;
@@ -325,12 +326,22 @@ export class DatabaseStorage implements IStorage {
     // PostgreSQL session store setup
     const PostgresSessionStore = connectPg(session);
     
-    // Create session store with PostgreSQL
+    // 创建标准的 PostgreSQL 连接池
+    const pgPool = new pg.Pool({
+      connectionString: process.env.DATABASE_URL
+    });
+    
+    // 创建一个持久化的会话存储
     this.sessionStore = new PostgresSessionStore({
-      pool: {
-        connectionString: process.env.DATABASE_URL!
-      } as any,
-      createTableIfMissing: true
+      pool: pgPool,
+      tableName: 'session', // 明确表名称
+      createTableIfMissing: true,
+      pruneSessionInterval: 60 // 每分钟清理过期会话
+    });
+    
+    // 添加错误处理
+    this.sessionStore.on('error', (error) => {
+      console.error('Session store error:', error);
     });
   }
   

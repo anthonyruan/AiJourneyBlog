@@ -54,18 +54,20 @@ export function isAdmin(user: SelectUser | undefined): boolean {
 }
 
 export function setupAuth(app: Express) {
+  // 使用更强壮的会话配置
   const sessionSettings: session.SessionOptions = {
-    secret: process.env.SESSION_SECRET || "ai-man-blog-secret-key",
-    resave: true, // 确保每次请求都保存会话，即使没有修改
-    saveUninitialized: false,
-    store: new MemoryStore({
-      checkPeriod: 86400000, // 清除过期会话的周期，设为24小时
-    }),
+    secret: process.env.SESSION_SECRET || "ai-man-blog-secret-key-v2",
+    resave: true, // 确保每次请求都保存会话
+    saveUninitialized: false, // 不保存未初始化的会话，减少服务器负担
+    rolling: true, // 每次请求都重设过期时间
+    store: storage.sessionStore, // 使用数据库会话存储
+    name: 'ai_man_sid', // 自定义cookie名，增加安全性
     cookie: {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // 在生产环境中使用secure
-      sameSite: "lax", // 解决Safari和Chrome的SameSite策略差异
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 延长到7天
+      httpOnly: true, // 防止客户端JS访问cookie
+      secure: process.env.NODE_ENV === "production", // 生产环境使用HTTPS
+      sameSite: "lax", // 平衡安全和用户体验
+      maxAge: 14 * 24 * 60 * 60 * 1000, // 两周有效期
+      path: '/'
     }
   };
 
@@ -131,16 +133,34 @@ export function setupAuth(app: Express) {
       // 确保会话被销毁
       req.session.destroy((err) => {
         if (err) return next(err);
-        // 告诉客户端清除cookie
-        res.clearCookie('connect.sid');
+        // 告诉客户端清除cookie，确保使用正确的cookie名称和路径
+        res.clearCookie('ai_man_sid', { path: '/' });
         res.sendStatus(200);
       });
     });
   });
 
-  app.get("/api/user", (req, res) => {
-    if (!req.isAuthenticated()) return res.sendStatus(401);
-    res.json(req.user);
+  app.get("/api/user", (req, res, next) => {
+    try {
+      // 增加检查确保会话有效
+      if (!req.session || !req.session.id) {
+        return res.sendStatus(401);
+      }
+      
+      // 检查认证状态
+      if (!req.isAuthenticated()) {
+        return res.sendStatus(401);
+      }
+      
+      // 刷新会话，确保防止会话固定攻击
+      req.session.touch();
+      
+      // 返回用户数据
+      res.json(req.user);
+    } catch (err) {
+      console.error("Error checking user session:", err);
+      next(err);
+    }
   });
   
   app.put("/api/user/:id", async (req, res) => {
