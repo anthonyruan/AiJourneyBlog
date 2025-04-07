@@ -1,6 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useLocation } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import CommentSection from "@/components/CommentSection";
 import NewsletterForm from "@/components/NewsletterForm";
@@ -8,9 +8,19 @@ import HuggingFaceEmbed from "@/components/HuggingFaceEmbed";
 import { Markdown } from "@/components/ui/markdown";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Edit, ArrowLeft } from "lucide-react";
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Edit, ArrowLeft, Trash2 } from "lucide-react";
 import { Post as BasePost } from "@shared/schema";
 import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 
 // 扩展Post类型，添加author字段
@@ -30,6 +40,9 @@ export default function BlogPost() {
   const params = useParams<{ slug: string }>();
   const [, setLocation] = useLocation();
   const { isAdmin, user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   // Get post data
   const { data: post, isLoading, isError } = useQuery<Post>({
@@ -55,6 +68,45 @@ export default function BlogPost() {
     if (post) {
       setLocation(`/edit-post/${post.slug}`);
     }
+  };
+
+  // Delete post mutation
+  const deletePostMutation = useMutation({
+    mutationFn: async () => {
+      if (!post) throw new Error("Post not found");
+      const res = await apiRequest("DELETE", `/api/posts/${post.id}`);
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(errorText || "Failed to delete post");
+      }
+      return true;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Post deleted",
+        description: "The post has been successfully deleted",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/posts"] });
+      setLocation("/");
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Delete failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Open delete confirmation dialog
+  const handleDeletePost = () => {
+    setDeleteDialogOpen(true);
+  };
+
+  // Confirm delete action
+  const confirmDelete = () => {
+    deletePostMutation.mutate();
+    setDeleteDialogOpen(false);
   };
 
   return (
@@ -88,14 +140,24 @@ export default function BlogPost() {
                 </Button>
                 
                 {isAdmin && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={handleEditPost}
-                    className="flex items-center gap-1 text-blue-600 hover:text-blue-800 border-blue-200 hover:border-blue-400"
-                  >
-                    <Edit className="h-4 w-4" /> Edit Post
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={handleEditPost}
+                      className="flex items-center gap-1 text-blue-600 hover:text-blue-800 border-blue-200 hover:border-blue-400"
+                    >
+                      <Edit className="h-4 w-4" /> 编辑
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={handleDeletePost}
+                      className="flex items-center gap-1 text-red-600 hover:text-red-800 border-red-200 hover:border-red-400"
+                    >
+                      <Trash2 className="h-4 w-4" /> 删除
+                    </Button>
+                  </div>
                 )}
               </div>
               
@@ -195,6 +257,33 @@ export default function BlogPost() {
           <NewsletterForm />
         </>
       ) : null}
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-red-600">确认删除</DialogTitle>
+            <DialogDescription>
+              您确定要删除这篇文章吗？此操作无法撤销。
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex space-x-2 pt-4">
+            <Button 
+              variant="outline" 
+              onClick={() => setDeleteDialogOpen(false)}
+            >
+              取消
+            </Button>
+            <Button 
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={deletePostMutation.isPending}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {deletePostMutation.isPending ? '删除中...' : '确认删除'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
