@@ -16,7 +16,7 @@ export default function TimelinePost({ post, commentsCount = 0, index }: Timelin
   return (
     <div className="mb-16 relative max-w-6xl mx-auto">
       {/* Content card - now in a cleaner, unified layout without timeline, with increased width */}
-      <div className="w-full md:w-5/6 lg:w-5/6 mx-auto">
+      <div className="w-full md:w-11/12 lg:w-10/12 mx-auto">
         <div className="flex items-center justify-center mb-2">
           <div className="bg-primary-500 rounded-full w-10 h-10 flex items-center justify-center shadow-sm mr-3">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
@@ -31,11 +31,11 @@ export default function TimelinePost({ post, commentsCount = 0, index }: Timelin
             <img 
               src={post.coverImage}
               alt={post.title} 
-              className="w-full h-52 object-cover"
+              className="w-full h-80 object-cover border-b border-gray-100"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 target.onerror = null; // Prevent infinite loop
-                target.src = 'https://via.placeholder.com/800x400?text=Image+Not+Found';
+                target.src = 'https://via.placeholder.com/1200x800?text=Image+Not+Found';
               }}
             />
           )}
