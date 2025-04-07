@@ -8,8 +8,18 @@ interface ProjectCardProps {
 }
 
 export default function ProjectCard({ project }: ProjectCardProps) {
+  // Function to open the Hugging Face URL
+  const openHuggingFaceUrl = () => {
+    if (project.huggingFaceUrl) {
+      window.open(project.huggingFaceUrl, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   return (
-    <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 hover:shadow-md transition-all">
+    <div 
+      className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 hover:shadow-md transition-all cursor-pointer"
+      onClick={openHuggingFaceUrl}
+    >
       {project.imageUrl && (
         <img
           src={project.imageUrl}
@@ -43,15 +53,16 @@ export default function ProjectCard({ project }: ProjectCardProps) {
           </div>
         )}
         {project.huggingFaceUrl && (
-          <a 
-            href={project.huggingFaceUrl}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button 
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent double opening
+              openHuggingFaceUrl();
+            }}
             className="inline-flex items-center justify-center w-full px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md font-medium text-sm"
           >
             <ExternalLink className="h-4 w-4 mr-2" />
             View on Hugging Face
-          </a>
+          </button>
         )}
       </div>
     </div>
