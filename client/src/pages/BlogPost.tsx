@@ -9,9 +9,19 @@ import { Markdown } from "@/components/ui/markdown";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Edit, ArrowLeft } from "lucide-react";
-import { Post } from "@shared/schema";
+import { Post as BasePost } from "@shared/schema";
 import { useAuth } from "@/hooks/use-auth";
 import { apiRequest } from "@/lib/queryClient";
+
+// 扩展Post类型，添加author字段
+interface Post extends BasePost {
+  author?: {
+    id: number;
+    username: string;
+    displayName?: string;
+    bio?: string;
+  };
+}
 
 // Replace Chinese comments with English to avoid encoding issues
 
@@ -152,8 +162,12 @@ export default function BlogPost() {
                     </svg>
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">I'm AI Man</p>
-                    <p className="text-sm text-gray-600">AI Researcher & Developer</p>
+                    <p className="font-medium text-gray-900">
+                      {post.author?.displayName || "I'm AI Man"}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      {post.author?.bio || "AI Researcher & Developer"}
+                    </p>
                   </div>
                 </div>
               </div>

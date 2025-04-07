@@ -37,8 +37,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!post) {
         return res.status(404).json({ message: "Post not found" });
       }
-      res.json(post);
+      
+      // 获取作者信息
+      const author = await storage.getUser(post.authorId);
+      
+      // 将作者信息添加到响应中
+      const postWithAuthor = {
+        ...post,
+        author: author ? {
+          id: author.id,
+          username: author.username,
+          displayName: author.displayName || "I'm AI Man",
+          bio: author.bio || "AI Researcher & Developer"
+        } : {
+          id: post.authorId,
+          username: "anthonyruan",
+          displayName: "I'm AI Man",
+          bio: "AI Researcher & Developer"
+        }
+      };
+      
+      res.json(postWithAuthor);
     } catch (error) {
+      console.error("Error fetching post:", error);
       res.status(500).json({ message: "Failed to fetch post" });
     }
   });
