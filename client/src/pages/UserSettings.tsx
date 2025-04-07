@@ -27,6 +27,7 @@ const userSettingsSchema = z.object({
   password: z.string().min(6, "New password must be at least 6 characters").optional(),
   confirmPassword: z.string().optional(),
   displayName: z.string().optional(),
+  bio: z.string().optional(),
 }).refine(data => {
   // If password is set, confirmPassword must match
   if (data.password && data.password !== data.confirmPassword) {
@@ -60,6 +61,7 @@ export default function UserSettings() {
       password: "",
       confirmPassword: "",
       displayName: "",
+      bio: "",
     },
   });
 
@@ -74,6 +76,7 @@ export default function UserSettings() {
       form.reset({
         username: user.username,
         displayName: user.displayName || "",
+        bio: user.bio || "",
       });
     }
   }, [user, form]);
@@ -104,6 +107,10 @@ export default function UserSettings() {
       
       if (data.displayName && data.displayName !== user.displayName) {
         updatedFields.displayName = data.displayName;
+      }
+      
+      if (data.bio !== undefined && data.bio !== user.bio) {
+        updatedFields.bio = data.bio;
       }
       
       if (data.password) {
@@ -201,6 +208,21 @@ export default function UserSettings() {
                     <FormLabel>Display Name</FormLabel>
                     <FormControl>
                       <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              {/* Bio/Profile */}
+              <FormField
+                control={form.control}
+                name="bio"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Bio</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Brief description about yourself" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
