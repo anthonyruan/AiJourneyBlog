@@ -102,7 +102,7 @@ export default function LoginPage() {
           </CardContent>
           <CardFooter className="flex flex-col">
             <p className="text-xs text-center text-gray-500 mt-2">
-              For demo purposes, use username: "admin" password: "admin"
+              For demo purposes, use username: "admin" password: "adminpassword"
             </p>
           </CardFooter>
         </Card>

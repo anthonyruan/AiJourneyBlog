@@ -56,16 +56,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onSuccess: (data) => {
       // 直接设置用户数据到缓存中，确保登录状态立即可见
       queryClient.setQueryData(["/api/user"], data);
+      
+      // 强制刷新查询以确保客户端数据与服务器同步
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      
       const isUserAdmin = data.role === 'admin';
       toast({
         title: "Login successful",
         description: isUserAdmin ? "You are now logged in as administrator" : "You are now logged in",
       });
       
-      // 短暂延迟后刷新页面，确保所有浏览器都能正确加载用户状态
+      // 更长的延迟确保会话已完全设置好
       setTimeout(() => {
         window.location.href = "/";
-      }, 500);
+      }, 1000);
     },
     onError: (error: Error) => {
       toast({
@@ -88,15 +92,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onSuccess: (data) => {
       // 直接设置用户数据到缓存中
       queryClient.setQueryData(["/api/user"], data);
+      
+      // 强制刷新查询以确保客户端数据与服务器同步
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      
       toast({
         title: "Registration successful",
         description: "You are now logged in",
       });
       
-      // 短暂延迟后刷新页面，确保所有浏览器都能正确加载用户状态
+      // 更长的延迟确保会话已完全设置好
       setTimeout(() => {
         window.location.href = "/";
-      }, 500);
+      }, 1000);
     },
     onError: (error: Error) => {
       toast({
@@ -118,6 +126,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onSuccess: () => {
       // 直接将用户数据设为null
       queryClient.setQueryData(["/api/user"], null);
+      
+      // 强制刷新查询以确保客户端数据与服务器同步
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      
       toast({
         title: "Logout successful",
         description: "You have been logged out",
@@ -126,7 +138,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // 强制刷新页面，确保在所有浏览器中都能正确清除状态
       setTimeout(() => {
         window.location.href = "/";
-      }, 500);
+      }, 1000);
     },
     onError: (error: Error) => {
       toast({

@@ -56,7 +56,7 @@ export function isAdmin(user: SelectUser | undefined): boolean {
 export function setupAuth(app: Express) {
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || "ai-man-blog-secret-key",
-    resave: false,
+    resave: true, // 确保每次请求都保存会话，即使没有修改
     saveUninitialized: false,
     store: new MemoryStore({
       checkPeriod: 86400000, // 清除过期会话的周期，设为24小时
@@ -65,7 +65,7 @@ export function setupAuth(app: Express) {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production", // 在生产环境中使用secure
       sameSite: "lax", // 解决Safari和Chrome的SameSite策略差异
-      maxAge: 24 * 60 * 60 * 1000 // 24小时
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 延长到7天
     }
   };
 
