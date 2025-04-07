@@ -152,7 +152,7 @@ export default function BlogPost() {
                     </svg>
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">{user?.username || "Guest"}</p>
+                    <p className="font-medium text-gray-900">I'm AI Man</p>
                     <p className="text-sm text-gray-600">AI Researcher & Developer</p>
                   </div>
                 </div>
