@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, timestamp, json } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, timestamp, json, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -113,3 +113,53 @@ export type InsertMessage = z.infer<typeof insertMessageSchema>;
 
 export type Subscriber = typeof subscribers.$inferSelect;
 export type InsertSubscriber = z.infer<typeof insertSubscriberSchema>;
+
+// About page schema
+export const aboutPage = pgTable("about_page", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  title: text("title").notNull(),
+  bio: text("bio").notNull(),
+  additionalBio: text("additional_bio"),
+  profileImage: text("profile_image"),
+  socialLinks: jsonb("social_links"),
+  skills: text("skills").array(),
+  updatedAt: timestamp("updated_at").notNull(),
+});
+
+export const aboutPageSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  title: z.string().min(1, "Title is required"),
+  bio: z.string().min(1, "Bio is required"),
+  additionalBio: z.string().optional(),
+  profileImage: z.string().optional(),
+  socialLinks: z.object({
+    github: z.string().optional(),
+    twitter: z.string().optional(),
+    linkedin: z.string().optional(),
+    huggingface: z.string().optional(),
+  }).optional(),
+  skills: z.array(z.string()).optional(),
+});
+
+export const initialAboutPage = {
+  name: "Admin User",
+  title: "AI Researcher & Developer",
+  bio: "I'm an AI enthusiast and developer focused on natural language processing and computer vision applications. My journey began with traditional machine learning and has evolved to working with transformer-based models and generative AI.",
+  additionalBio: "Currently, I'm exploring the intersection of multimodal learning and practical applications of AI in everyday tools. This blog documents my learning process, challenges, and discoveries along the way.",
+  profileImage: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=400&q=80",
+  socialLinks: {
+    github: "https://github.com",
+    twitter: "https://twitter.com",
+    linkedin: "https://linkedin.com",
+    huggingface: "https://huggingface.co"
+  },
+  skills: [
+    "Python", "PyTorch", "TensorFlow", "NLP", "Computer Vision", 
+    "Hugging Face", "Transformers", "Generative AI", "LLMs", 
+    "React", "Web Development"
+  ]
+};
+
+export type AboutPage = typeof aboutPage.$inferSelect;
+export type AboutPageData = z.infer<typeof aboutPageSchema>;

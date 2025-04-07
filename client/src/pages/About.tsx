@@ -1,179 +1,211 @@
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { FaGithub, FaTwitter, FaLinkedin } from "react-icons/fa";
-import { SiHuggingface } from "react-icons/si";
+import { useAuth } from "@/hooks/use-auth";
+import { AboutPageData } from "@shared/schema";
+import Layout from "@/components/Layout";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import NewsletterForm from "@/components/NewsletterForm";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Github, Twitter, Linkedin, ExternalLink, Pencil, Loader2 
+} from "lucide-react";
+import { SiHuggingface } from "react-icons/si";
 
 export default function About() {
-  return (
-    <>
-      {/* About Header */}
-      <section className="bg-gradient-to-br from-primary-50 to-secondary-50 py-12">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+  const { isAdmin } = useAuth();
+  
+  // Fetch about page data
+  const { data: aboutData, isLoading, error } = useQuery<AboutPageData>({
+    queryKey: ['/api/about'],
+    queryFn: async () => {
+      const res = await fetch('/api/about');
+      if (!res.ok) throw new Error('Failed to fetch about page data');
+      return res.json();
+    },
+  });
+
+  // Function to render social media icons
+  const renderSocialIcon = (type: string, url?: string) => {
+    if (!url) return null;
+    
+    let icon;
+    switch (type) {
+      case 'github':
+        icon = <Github className="h-5 w-5" />;
+        break;
+      case 'twitter':
+        icon = <Twitter className="h-5 w-5" />;
+        break;
+      case 'linkedin':
+        icon = <Linkedin className="h-5 w-5" />;
+        break;
+      case 'huggingface':
+        icon = <SiHuggingface className="h-5 w-5" />;
+        break;
+      default:
+        icon = <ExternalLink className="h-5 w-5" />;
+    }
+    
+    return (
+      <a 
+        href={url} 
+        target="_blank" 
+        rel="noopener noreferrer"
+        className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+      >
+        {icon}
+      </a>
+    );
+  };
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="container py-12">
+          <div className="flex justify-center items-center h-64">
+            <Loader2 className="h-8 w-8 animate-spin" />
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error || !aboutData) {
+    return (
+      <Layout>
+        <div className="container py-12">
           <div className="text-center">
-            <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 font-heading sm:text-4xl">
-              About Me
-            </h1>
-            <p className="mt-3 max-w-2xl mx-auto text-xl text-gray-600">
-              Get to know the person behind the AI experiments
+            <h2 className="text-2xl font-bold mb-4">Error Loading About Page</h2>
+            <p className="text-muted-foreground">
+              There was a problem loading the about page information. Please try again later.
             </p>
           </div>
         </div>
-      </section>
+      </Layout>
+    );
+  }
 
-      {/* About Content */}
-      <section className="py-12 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto">
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
-              <div className="md:flex">
-                <div className="md:shrink-0">
+  return (
+    <Layout>
+      <div className="container py-12">
+        {/* Admin Edit Button */}
+        {isAdmin && (
+          <div className="flex justify-end mb-6">
+            <Button asChild variant="outline" size="sm">
+              <Link to="/edit-about">
+                <Pencil className="h-4 w-4 mr-2" />
+                Edit About Page
+              </Link>
+            </Button>
+          </div>
+        )}
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Profile Section - Left Column on Desktop */}
+          <div className="md:col-span-1">
+            <Card className="overflow-hidden">
+              <div className="aspect-square overflow-hidden bg-muted">
+                {aboutData.profileImage ? (
                   <img 
-                    className="h-64 w-full object-cover md:h-full md:w-48" 
-                    src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=400&q=80" 
-                    alt="Profile photo" 
+                    src={aboutData.profileImage} 
+                    alt={aboutData.name}
+                    className="w-full h-full object-cover"
                   />
-                </div>
-                <div className="p-8">
-                  <div className="uppercase tracking-wide text-sm text-primary-600 font-semibold">AI Researcher & Developer</div>
-                  <h3 className="mt-1 text-2xl font-medium text-gray-900 font-heading">Admin User</h3>
-                  <p className="mt-4 text-gray-600">
-                    I'm an AI enthusiast and developer focused on natural language processing and computer vision applications. My journey began with traditional machine learning and has evolved to working with transformer-based models and generative AI.
-                  </p>
-                  <p className="mt-3 text-gray-600">
-                    Currently, I'm exploring the intersection of multimodal learning and practical applications of AI in everyday tools. This blog documents my learning process, challenges, and discoveries along the way.
-                  </p>
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-muted">
+                    <span className="text-4xl font-bold text-muted-foreground">
+                      {aboutData.name?.charAt(0) || "A"}
+                    </span>
+                  </div>
+                )}
+              </div>
+              <CardContent className="p-6">
+                <h1 className="text-2xl font-bold mb-1">{aboutData.name}</h1>
+                <p className="text-lg text-muted-foreground mb-4">{aboutData.title}</p>
+                
+                {/* Social Links */}
+                {aboutData.socialLinks && (
+                  <div className="flex flex-wrap gap-3 mb-6">
+                    {aboutData.socialLinks.github && 
+                      renderSocialIcon('github', aboutData.socialLinks.github)}
+                    {aboutData.socialLinks.twitter && 
+                      renderSocialIcon('twitter', aboutData.socialLinks.twitter)}
+                    {aboutData.socialLinks.linkedin && 
+                      renderSocialIcon('linkedin', aboutData.socialLinks.linkedin)}
+                    {aboutData.socialLinks.huggingface && 
+                      renderSocialIcon('huggingface', aboutData.socialLinks.huggingface)}
+                  </div>
+                )}
+                
+                {/* Skills */}
+                {aboutData.skills && aboutData.skills.length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-medium text-muted-foreground mb-3">Skills</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {aboutData.skills.map((skill, index) => (
+                        <Badge key={index} variant="secondary">
+                          {skill}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+          
+          {/* Bio Section - Right Column on Desktop */}
+          <div className="md:col-span-2">
+            <Card>
+              <CardContent className="p-6">
+                <h2 className="text-xl font-bold mb-4">About Me</h2>
+                
+                <div className="prose dark:prose-invert max-w-none">
+                  <p className="text-base leading-relaxed mb-6">{aboutData.bio}</p>
                   
-                  <div className="mt-6">
-                    <h4 className="text-lg font-medium text-gray-900">Connect with me</h4>
-                    <div className="mt-3 flex space-x-6">
-                      <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-700">
-                        <FaGithub className="text-2xl" />
-                      </a>
-                      <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-blue-500">
-                        <FaTwitter className="text-2xl" />
-                      </a>
-                      <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-blue-700">
-                        <FaLinkedin className="text-2xl" />
-                      </a>
-                      <a href="https://huggingface.co" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-pink-500">
-                        <SiHuggingface className="text-2xl" />
-                      </a>
+                  {aboutData.additionalBio && (
+                    <div className="mt-6">
+                      <p className="text-base leading-relaxed">
+                        {aboutData.additionalBio}
+                      </p>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="mt-8">
+                  <h3 className="text-lg font-medium mb-4">What I Do</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="bg-muted/40 p-4 rounded-md">
+                      <h4 className="font-medium mb-2">AI Research & Development</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Exploring the latest advances in machine learning and artificial intelligence.
+                      </p>
+                    </div>
+                    <div className="bg-muted/40 p-4 rounded-md">
+                      <h4 className="font-medium mb-2">Knowledge Sharing</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Documenting my journey and sharing insights through this blog.
+                      </p>
+                    </div>
+                    <div className="bg-muted/40 p-4 rounded-md">
+                      <h4 className="font-medium mb-2">Tool Building</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Creating practical AI-powered tools and applications.
+                      </p>
+                    </div>
+                    <div className="bg-muted/40 p-4 rounded-md">
+                      <h4 className="font-medium mb-2">Continuous Learning</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Always learning new techniques and approaches in the fast-evolving AI field.
+                      </p>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
-      </section>
-
-      {/* Experience & Skills */}
-      <section className="py-12 bg-gray-50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 p-8">
-            <h2 className="text-2xl font-bold font-heading text-gray-900 mb-6">My AI Journey</h2>
-            
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-lg font-bold text-gray-900">Skills & Expertise</h3>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">Python</span>
-                  <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">PyTorch</span>
-                  <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">TensorFlow</span>
-                  <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">NLP</span>
-                  <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">Computer Vision</span>
-                  <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">Hugging Face</span>
-                  <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">Transformers</span>
-                  <span className="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded">Generative AI</span>
-                  <span className="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded">LLMs</span>
-                  <span className="bg-pink-100 text-pink-800 text-xs font-medium px-2.5 py-0.5 rounded">React</span>
-                  <span className="bg-pink-100 text-pink-800 text-xs font-medium px-2.5 py-0.5 rounded">Web Development</span>
-                </div>
-              </div>
-              
-              <div>
-                <h3 className="text-lg font-bold text-gray-900">Learning Path</h3>
-                <ul className="mt-3 space-y-3">
-                  <li className="flex">
-                    <div className="flex-shrink-0">
-                      <div className="flex items-center justify-center h-6 w-6 rounded-full bg-blue-100 text-blue-800">
-                        1
-                      </div>
-                    </div>
-                    <div className="ml-3">
-                      <p className="text-gray-700"><span className="font-medium">Fundamentals:</span> Started with classical ML algorithms and statistical methods</p>
-                    </div>
-                  </li>
-                  <li className="flex">
-                    <div className="flex-shrink-0">
-                      <div className="flex items-center justify-center h-6 w-6 rounded-full bg-blue-100 text-blue-800">
-                        2
-                      </div>
-                    </div>
-                    <div className="ml-3">
-                      <p className="text-gray-700"><span className="font-medium">Deep Learning:</span> Explored neural networks with PyTorch and TensorFlow</p>
-                    </div>
-                  </li>
-                  <li className="flex">
-                    <div className="flex-shrink-0">
-                      <div className="flex items-center justify-center h-6 w-6 rounded-full bg-blue-100 text-blue-800">
-                        3
-                      </div>
-                    </div>
-                    <div className="ml-3">
-                      <p className="text-gray-700"><span className="font-medium">NLP Revolution:</span> Dove into transformer architectures and language models</p>
-                    </div>
-                  </li>
-                  <li className="flex">
-                    <div className="flex-shrink-0">
-                      <div className="flex items-center justify-center h-6 w-6 rounded-full bg-blue-100 text-blue-800">
-                        4
-                      </div>
-                    </div>
-                    <div className="ml-3">
-                      <p className="text-gray-700"><span className="font-medium">Computer Vision:</span> Worked with image recognition and generation models</p>
-                    </div>
-                  </li>
-                  <li className="flex">
-                    <div className="flex-shrink-0">
-                      <div className="flex items-center justify-center h-6 w-6 rounded-full bg-blue-100 text-blue-800">
-                        5
-                      </div>
-                    </div>
-                    <div className="ml-3">
-                      <p className="text-gray-700"><span className="font-medium">Current:</span> Exploring multimodal models and practical AI applications</p>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-12 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold font-heading text-gray-900 mb-4">Let's Connect</h2>
-            <p className="text-gray-600 mb-6">
-              Have questions about AI or want to collaborate on a project? Reach out to me!
-            </p>
-            <div className="flex justify-center space-x-4 flex-wrap gap-y-3">
-              <Button asChild>
-                <Link href="/contact">Contact Me</Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <Link href="/projects">View Projects</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Newsletter */}
-      <NewsletterForm />
-    </>
+      </div>
+    </Layout>
   );
 }

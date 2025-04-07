@@ -13,6 +13,7 @@ import NewPost from "@/pages/NewPost";
 import EditPost from "@/pages/EditPost";
 import NewProject from "@/pages/NewProject";
 import EditProject from "@/pages/EditProject";
+import EditAbout from "@/pages/EditAbout";
 import LoginPage from "@/pages/LoginPage";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -31,6 +32,7 @@ function Router() {
         <ProtectedRoute path="/edit-post/:slug" component={EditPost} />
         <ProtectedRoute path="/new-project" component={NewProject} />
         <ProtectedRoute path="/edit-project/:id" component={EditProject} />
+        <ProtectedRoute path="/edit-about" component={EditAbout} />
         <Route component={NotFound} />
       </Switch>
     </Layout>

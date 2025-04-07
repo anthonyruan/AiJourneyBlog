@@ -4,7 +4,8 @@ import {
   projects, type Project, type InsertProject,
   comments, type Comment, type InsertComment,
   messages, type Message, type InsertMessage,
-  subscribers, type Subscriber, type InsertSubscriber
+  subscribers, type Subscriber, type InsertSubscriber,
+  aboutPage, type AboutPage, type AboutPageData, initialAboutPage
 } from "@shared/schema";
 
 import { eq, desc } from "drizzle-orm";
@@ -50,6 +51,10 @@ export interface IStorage {
   getSubscribers(): Promise<Subscriber[]>;
   createSubscriber(subscriber: InsertSubscriber): Promise<Subscriber>;
   deleteSubscriber(id: number): Promise<boolean>;
+  
+  // About Page
+  getAboutPage(): Promise<AboutPageData>;
+  updateAboutPage(data: AboutPageData): Promise<AboutPageData>;
 }
 
 // Create memory store for in-memory session storage
@@ -64,6 +69,7 @@ export class MemStorage implements IStorage {
   private comments: Map<number, Comment>;
   private messages: Map<number, Message>;
   private subscribers: Map<number, Subscriber>;
+  private aboutPageData: AboutPageData;
   
   private userCurrentId: number;
   private postCurrentId: number;
@@ -91,6 +97,9 @@ export class MemStorage implements IStorage {
     this.commentCurrentId = 1;
     this.messageCurrentId = 1;
     this.subscriberCurrentId = 1;
+    
+    // Initialize the About page data with default values
+    this.aboutPageData = initialAboutPage;
     
     // Add some initial data for the admin user
     this.users.set(1, {
@@ -284,6 +293,16 @@ export class MemStorage implements IStorage {
   async deleteSubscriber(id: number): Promise<boolean> {
     return this.subscribers.delete(id);
   }
+  
+  // About Page methods
+  async getAboutPage(): Promise<AboutPageData> {
+    return this.aboutPageData;
+  }
+  
+  async updateAboutPage(data: AboutPageData): Promise<AboutPageData> {
+    this.aboutPageData = data;
+    return this.aboutPageData;
+  }
 }
 
 // Database storage implementation
@@ -461,6 +480,123 @@ export class DatabaseStorage implements IStorage {
   async deleteSubscriber(id: number): Promise<boolean> {
     await db.delete(subscribers).where(eq(subscribers.id, id));
     return true;
+  }
+  
+  // About Page methods
+  async getAboutPage(): Promise<AboutPageData> {
+    try {
+      // Try to get the existing about page data from the database
+      const [aboutData] = await db.select().from(aboutPage).limit(1);
+      
+      if (aboutData) {
+        return {
+          name: aboutData.name,
+          title: aboutData.title,
+          bio: aboutData.bio,
+          additionalBio: aboutData.additionalBio || undefined,
+          profileImage: aboutData.profileImage || undefined,
+          socialLinks: aboutData.socialLinks as any || undefined,
+          skills: aboutData.skills || undefined
+        };
+      }
+      
+      // If no data exists, create default data
+      return this.createInitialAboutPage();
+    } catch (error) {
+      console.error("Error fetching about page data:", error);
+      return this.createInitialAboutPage();
+    }
+  }
+  
+  async updateAboutPage(data: AboutPageData): Promise<AboutPageData> {
+    try {
+      // Check if data already exists
+      const [existingData] = await db.select().from(aboutPage).limit(1);
+      
+      if (existingData) {
+        // Update existing record
+        const [updated] = await db.update(aboutPage)
+          .set({
+            name: data.name,
+            title: data.title,
+            bio: data.bio,
+            additionalBio: data.additionalBio || null,
+            profileImage: data.profileImage || null,
+            socialLinks: data.socialLinks || null,
+            skills: data.skills || null,
+            updatedAt: new Date()
+          })
+          .where(eq(aboutPage.id, existingData.id))
+          .returning();
+          
+        return {
+          name: updated.name,
+          title: updated.title,
+          bio: updated.bio,
+          additionalBio: updated.additionalBio || undefined,
+          profileImage: updated.profileImage || undefined,
+          socialLinks: updated.socialLinks as any || undefined,
+          skills: updated.skills || undefined
+        };
+      } else {
+        // Create new record
+        const [created] = await db.insert(aboutPage)
+          .values({
+            name: data.name,
+            title: data.title,
+            bio: data.bio,
+            additionalBio: data.additionalBio || null,
+            profileImage: data.profileImage || null,
+            socialLinks: data.socialLinks || null,
+            skills: data.skills || null,
+            updatedAt: new Date()
+          })
+          .returning();
+          
+        return {
+          name: created.name,
+          title: created.title,
+          bio: created.bio,
+          additionalBio: created.additionalBio || undefined,
+          profileImage: created.profileImage || undefined,
+          socialLinks: created.socialLinks as any || undefined,
+          skills: created.skills || undefined
+        };
+      }
+    } catch (error) {
+      console.error("Error updating about page data:", error);
+      throw error;
+    }
+  }
+  
+  private async createInitialAboutPage(): Promise<AboutPageData> {
+    try {
+      // Insert default data
+      const [created] = await db.insert(aboutPage)
+        .values({
+          ...initialAboutPage,
+          additionalBio: initialAboutPage.additionalBio || null,
+          profileImage: initialAboutPage.profileImage || null,
+          socialLinks: initialAboutPage.socialLinks || null,
+          skills: initialAboutPage.skills || null,
+          updatedAt: new Date()
+        })
+        .returning();
+        
+      return {
+        name: created.name,
+        title: created.title,
+        bio: created.bio,
+        additionalBio: created.additionalBio || undefined,
+        profileImage: created.profileImage || undefined,
+        socialLinks: created.socialLinks as any || undefined,
+        skills: created.skills || undefined
+      };
+    } catch (error) {
+      console.error("Error creating initial about page data:", error);
+      // If there's an error creating the record, return the default data
+      return initialAboutPage;
+    }
   }
 }
 

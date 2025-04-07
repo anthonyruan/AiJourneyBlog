@@ -7,7 +7,8 @@ import {
   insertProjectSchema,
   insertCommentSchema,
   insertMessageSchema,
-  insertSubscriberSchema
+  insertSubscriberSchema,
+  aboutPageSchema
 } from "@shared/schema";
 import { z } from "zod";
 import { fromZodError } from "zod-validation-error";
@@ -297,6 +298,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       res.status(500).json({ message: "Failed to create subscriber" });
+    }
+  });
+  
+  // About page routes
+  apiRouter.get("/about", async (_req: Request, res: Response) => {
+    try {
+      const aboutPageData = await storage.getAboutPage();
+      res.json(aboutPageData);
+    } catch (error) {
+      console.error("Error fetching about page data:", error);
+      res.status(500).json({ message: "Failed to fetch about page data" });
+    }
+  });
+  
+  apiRouter.put("/about", async (req: Request, res: Response) => {
+    try {
+      // Check authentication - only admin should update the about page
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      // Validate about page data
+      const validatedData = aboutPageSchema.parse(req.body);
+      
+      // Update the about page data
+      const updatedData = await storage.updateAboutPage(validatedData);
+      res.json(updatedData);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Validation error", 
+          errors: fromZodError(error).message 
+        });
+      }
+      console.error("Error updating about page:", error);
+      res.status(500).json({ message: "Failed to update about page" });
     }
   });
 
