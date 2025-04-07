@@ -20,20 +20,22 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 function Router() {
   return (
-    <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/blog/:slug" component={BlogPost} />
-      <Route path="/projects" component={Projects} />
-      <Route path="/about" component={About} />
-      <Route path="/contact" component={Contact} />
-      <Route path="/login" component={LoginPage} />
-      <ProtectedRoute path="/new-post" component={NewPost} />
-      <ProtectedRoute path="/edit-post/:slug" component={EditPost} />
-      <ProtectedRoute path="/new-project" component={NewProject} />
-      <ProtectedRoute path="/edit-project/:id" component={EditProject} />
-      <ProtectedRoute path="/edit-about" component={EditAbout} />
-      <Route component={NotFound} />
-    </Switch>
+    <Layout>
+      <Switch>
+        <Route path="/" component={Home} />
+        <Route path="/blog/:slug" component={BlogPost} />
+        <Route path="/projects" component={Projects} />
+        <Route path="/about" component={About} />
+        <Route path="/contact" component={Contact} />
+        <Route path="/login" component={LoginPage} />
+        <ProtectedRoute path="/new-post" component={NewPost} />
+        <ProtectedRoute path="/edit-post/:slug" component={EditPost} />
+        <ProtectedRoute path="/new-project" component={NewProject} />
+        <ProtectedRoute path="/edit-project/:id" component={EditProject} />
+        <ProtectedRoute path="/edit-about" component={EditAbout} />
+        <Route component={NotFound} />
+      </Switch>
+    </Layout>
   );
 }
 
