@@ -53,6 +53,14 @@ app.use((req, res, next) => {
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
+    // For production, try to use the server-utils to ensure static files
+    try {
+      // Try to dynamically import the server-utils.js module
+      const { ensureStaticFiles } = await import('./server-utils.js');
+      ensureStaticFiles();
+    } catch (error) {
+      console.log("Could not load server-utils.js, continuing with normal static file serving");
+    }
     serveStatic(app);
   }
 
