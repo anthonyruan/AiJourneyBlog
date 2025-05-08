@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import TimelinePost from "@/components/TimelinePost";
 import ProjectCard from "@/components/ProjectCard";
 import NewsletterForm from "@/components/NewsletterForm";
+import AiPatternBackground from "@/components/AiPatternBackground";
 import { Button } from "@/components/ui/button";
 import { Post, Project } from "@shared/schema";
 import { useAuth } from "@/hooks/use-auth";
@@ -42,8 +43,11 @@ export default function Home() {
   return (
     <>
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary-50 to-secondary-50 py-16 lg:py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="relative bg-gradient-to-br from-primary-50 to-secondary-50 py-16 lg:py-24 overflow-hidden border-b border-primary-100">
+        <div className="absolute inset-0">
+          <AiPatternBackground />
+        </div>
+        <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl font-heading">
               <span className="block">AI Research &</span>
