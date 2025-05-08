@@ -147,7 +147,7 @@ export default function BlogPost() {
                       onClick={handleEditPost}
                       className="flex items-center gap-1 text-blue-600 hover:text-blue-800 border-blue-200 hover:border-blue-400"
                     >
-                      <Edit className="h-4 w-4" /> 编辑
+                      <Edit className="h-4 w-4" /> Edit
                     </Button>
                     <Button 
                       variant="outline" 
@@ -155,7 +155,7 @@ export default function BlogPost() {
                       onClick={handleDeletePost}
                       className="flex items-center gap-1 text-red-600 hover:text-red-800 border-red-200 hover:border-red-400"
                     >
-                      <Trash2 className="h-4 w-4" /> 删除
+                      <Trash2 className="h-4 w-4" /> Delete
                     </Button>
                   </div>
                 )}
@@ -261,9 +261,9 @@ export default function BlogPost() {
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-red-600">确认删除</DialogTitle>
+            <DialogTitle className="text-red-600">Confirm Delete</DialogTitle>
             <DialogDescription>
-              您确定要删除这篇文章吗？此操作无法撤销。
+              Are you sure you want to delete this post? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex space-x-2 pt-4">
@@ -271,7 +271,7 @@ export default function BlogPost() {
               variant="outline" 
               onClick={() => setDeleteDialogOpen(false)}
             >
-              取消
+              Cancel
             </Button>
             <Button 
               variant="destructive"
@@ -279,7 +279,7 @@ export default function BlogPost() {
               disabled={deletePostMutation.isPending}
               className="bg-red-600 hover:bg-red-700"
             >
-              {deletePostMutation.isPending ? '删除中...' : '确认删除'}
+              {deletePostMutation.isPending ? 'Deleting...' : 'Delete'}
             </Button>
           </DialogFooter>
         </DialogContent>
