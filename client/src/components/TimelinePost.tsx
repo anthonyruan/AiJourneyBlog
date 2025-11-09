@@ -28,17 +28,19 @@ export default function TimelinePost({ post, commentsCount = 0, index }: Timelin
         
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300">
           {post.coverImage && (
-            <Link href={`/blog/${post.slug}`}>
-              <img 
-                src={post.coverImage}
-                alt={post.title} 
-                className="w-full h-96 object-cover border-b border-gray-100 cursor-pointer hover:opacity-90 transition-opacity"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.onerror = null; // Prevent infinite loop
-                  target.src = 'https://via.placeholder.com/1200x800?text=Image+Not+Found';
-                }}
-              />
+            <Link href={`/blog/${post.slug}`} className="block">
+              <div className="w-full h-64 md:h-80 lg:h-[420px] overflow-hidden">
+                <img
+                  src={post.coverImage}
+                  alt={post.title}
+                  className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.onerror = null; // Prevent infinite loop
+                    target.src = 'https://via.placeholder.com/1200x628?text=Image+Not+Found';
+                  }}
+                />
+              </div>
             </Link>
           )}
           <div className="p-6">
